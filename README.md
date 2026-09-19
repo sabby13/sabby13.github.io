@@ -35,16 +35,5 @@
 ```
 
 
-
-
-
-# anyway heres a small info of my personal portfolio    
-FLAVOUR:
-cream paper, deep navy ink, script + pixel type,
-and two monarch butterflies that refuse to sit still. 🦋
-
-built by hand with plain **HTML / CSS / JS** (plus a dash of **Three.js**
-for the butterflies); no framework, no build step, just files.
-
-
+dont ask me why i like butterflies, they are special too me (remindes me of the good in people)
 *made with a lot of ☕ and slightly too much fiddling with butterfly angles.*
