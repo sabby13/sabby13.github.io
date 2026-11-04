@@ -20,11 +20,22 @@
 (function () {
 'use strict';
 
+/* Belt & braces: the instant this script is alive, the no-JS fallback
+   typography yields to the drawn hero. If this script never runs
+   (404, stale cache, JS disabled), the fallback stays — clean cream
+   hero with readable Playfair type. */
+const fb = document.getElementById('hero-fallback');
+if (fb) fb.remove();
+
+/* The top bar fails open in CSS; hide it only while the intro plays. */
+document.body.classList.add('intro-pending');
+
 const hero = document.getElementById('hero');
 const cv   = document.getElementById('garden-canvas');
 if (!hero || !cv) return;
 
-const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const REDUCED = typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------------------------------------------------------------
    Palette — hmm.html "Paper" palette tuned to the site's warm cream:
@@ -475,8 +486,15 @@ class Garden {
     snap() { this.letters.forEach(l => { l.x = l.tx; l.y = l.ty; }); }
 
     resize() {
+        /* Pin the CSS size inline as well — even if a stylesheet loaded
+           late, went stale or was missing, the canvas can never remain
+           a small default 300x150 rectangle inside the hero. */
+        this.cv.style.width = '100%';
+        this.cv.style.height = '100%';
+
         const r = this.cv.getBoundingClientRect();
-        if (!r.width) return;
+        if (!r.width || !r.height) return;    // not laid out yet — re-checked by watchdog
+
         this.W = r.width; this.H = r.height;
         this.dpr = window.devicePixelRatio || 1;
         this.cv.width  = Math.round(r.width  * this.dpr);
@@ -503,15 +521,50 @@ function startLoop() {
             .observe(hero);
     }
     const loop = () => {
-        if (visible && !REDUCED) garden.paint(performance.now());
+        // a single frame error must never unwind the rAF chain
+        if (visible && !REDUCED) {
+            try { garden.paint(performance.now()); } catch (e) { /* keep looping */ }
+        }
         requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
 }
 
+/* ---------------------------------------------------------------------
+   Size watchdog — the hero must ALWAYS fill the viewport.
+
+   Guarantees the canvas is re-measured whenever the hero's real layout
+   changes: late-applied stylesheets, scrollbar appearance, font swap
+   reflows, rotating / resizing a phone, dynamic-viewport (svh) changes.
+   Without this, a canvas sized during a pre-final layout could stay
+   trapped at the wrong dimensions forever (no resize event fires).
+   --------------------------------------------------------------------- */
+function watchSize() {
+    const recheck = () => {
+        try {
+            const r = cv.getBoundingClientRect(),
+                  need = Math.round(r.width * (window.devicePixelRatio || 1)) !== cv.width
+                      || Math.round(r.height * (window.devicePixelRatio || 1)) !== cv.height;
+            if (need || garden.W !== r.width || garden.H !== r.height || !garden.W) {
+                garden.resize();
+            }
+            if (REDUCED) garden.paint(performance.now());
+        } catch (e) { /* silent — next tick retries */ }
+    };
+    window.addEventListener('resize', recheck);
+    window.addEventListener('orientationchange', recheck);
+    if ('ResizeObserver' in window) {
+        new ResizeObserver(recheck).observe(hero);
+        new ResizeObserver(recheck).observe(cv);
+    }
+    // safety net: catches late CSS/FOUC moments even without observers
+    [350, 900, 1800, 3000].forEach(ms => setTimeout(recheck, ms));
+}
+
 function reveal(permanentHeroTime) {
     const gr = document.getElementById('greeting');
     if (gr) gr.remove();
+    document.body.classList.remove('intro-pending');
     document.body.classList.add('intro-done');
 
     const now = performance.now();
@@ -545,6 +598,7 @@ function reducedReveal() {
     // no animations: greetings skipped, garden shown fully grown, static
     garden.letters.forEach(l => { l.appear = 0; l.birth = -1e7; });
     garden.helloAppear = 0;
+    document.body.classList.remove('intro-pending');
     document.body.classList.add('intro-done');
     const gr = document.getElementById('greeting');
     if (gr) gr.remove();
@@ -552,35 +606,65 @@ function reducedReveal() {
 }
 
 /* ---------------------------------------------------------------------
+   Fail-safe: if anything goes wrong during boot, the page must still
+   end up as the clean cream hero — static garden if possible,
+   no stuck greeting, top bar visible, fallback already removed.
+   --------------------------------------------------------------------- */
+function failSafe() {
+    try {
+        if (!garden.letters.length) garden.build();
+        garden.letters.forEach(l => { l.appear = 0; l.birth = -1e7; });
+        garden.helloAppear = 0;
+        garden.resize();
+        startLoop();
+        garden.paint(performance.now());
+    } catch (e) { /* even a dead canvas leaves the inline-CSS cream hero */ }
+    document.body.classList.remove('intro-pending');
+    document.body.classList.add('intro-done');
+    const gr = document.getElementById('greeting');
+    if (gr) gr.remove();
+}
+
+/* ---------------------------------------------------------------------
    Boot: wait for the fonts (canvas metrics need real Playfair), build,
    then either run the greeting sequence once or render statically.
+   Any error lands in failSafe() — never in a half-initialized state.
    --------------------------------------------------------------------- */
 (async function boot() {
 
     try {
-        const loads = [
-            document.fonts.load(`700 100px ${F}`),
-            document.fonts.load('700 100px "Noto Serif Devanagari"'),
-            document.fonts.load('700 100px "Noto Serif Gurmukhi"')
-        ];
-        await Promise.race([Promise.all(loads).catch(() => {}), sleep(2000)]);
+        if (document.fonts && typeof document.fonts.load === 'function') {
+            const loads = [
+                document.fonts.load(`700 100px ${F}`),
+                document.fonts.load('700 100px "Noto Serif Devanagari"'),
+                document.fonts.load('700 100px "Noto Serif Gurmukhi"')
+            ];
+            await Promise.race([Promise.all(loads).catch(() => {}), sleep(2000)]);
+        }
     } catch (e) { /* fonts optional — fallbacks render anyway */ }
 
-    garden.build();
-    garden.resize();
-    if (REDUCED) reducedReveal();
-    else runGreetings();
+    try {
+        garden.build();
+        garden.resize();
+        startLoop();                 // runs immediately; letters appear later
+        watchSize();
 
-    // late font arrival would invalidate measured widths — rebuild metrics
-    if (document.fonts) {
-        document.fonts.ready.then(() => { garden.cache = {}; garden.layout(); garden.snap(); }).catch(() => {});
+        if (REDUCED) reducedReveal();
+        else runGreetings();
+
+        // late font arrival would invalidate measured widths — rebuild metrics
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                garden.cache = {};
+                garden.layout(); garden.snap();
+                if (REDUCED) garden.paint(performance.now());
+            }).catch(() => {});
+        }
+    } catch (e) {
+        failSafe();
+        watchSize();
     }
 
 })();
-
-window.addEventListener('resize', () => {
-    garden.resize();
-    if (REDUCED) garden.paint(performance.now());
-});
 
 })();

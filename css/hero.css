@@ -66,8 +66,15 @@
     letter-spacing:.14em;
     text-transform:uppercase;
 
-    opacity:0;
+    /* fails open: visible by default. hero.js adds body.intro-pending
+       at script start to hide it during the intro. If JavaScript never
+       runs, the top bar is simply there — never lost. */
+    opacity:1;
     transition:opacity .9s ease .25s;
+}
+
+body.intro-pending .hero-top{
+    opacity:0;
 }
 
 body.intro-done .hero-top{

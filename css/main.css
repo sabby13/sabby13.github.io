@@ -1,4 +1,6 @@
-@import url("hero.css");
+/* NOTE: hero.css is linked directly from index.html (not @imported here)
+   so its cache key can be versioned independently and so the hero can
+   never silently lose its stylesheet. */
 @import url("navigation.css");
 @import url("sections.css");
 @import url("about.css");
