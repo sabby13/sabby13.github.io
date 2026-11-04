@@ -11,10 +11,16 @@
      - two-pass layered render: layer 0 -> glyphs -> layer 1
        (this is what makes plants weave BEHIND and IN FRONT of the text)
      - jit() "boiling line" hand-drawn wobble + birth wobble (wpt)
+     - procedural butterflies (spawnFly / flyOff / drawFlies / butterfly
+       + the perch registry of mature roses): same flight physics
+       (flut/wob steering, wing bursts) and same look (dark quivered
+       wings, red spots, blue body). No mouse clicks — a scheduler
+       releases one ~4s after the reveal, at most 2 in the air,
+       each departing after a few seconds so the hero stays calm.
 
    Dropped (not needed for a static hero):
      typing/editor input, poster mode + presets, PNG/SVG/video/zip
-     export, butterflies, mouse-follow lean, cut/wither/recoil.
+     export, mouse-follow lean, cut/wither/recoil.
    ===================================================================== */
 
 (function () {
@@ -83,6 +89,8 @@ class Garden {
         this.helloAppear = null;
         this._now = 0; this._f = 0; this._amp = 0;
         this.cc = C;
+        /* butterflies (hmm.html system) */
+        this.flies = []; this.perch = []; this._fl = null;
     }
 
     /* ---------- math (verbatim from Typegarden) ---------- */
@@ -354,7 +362,7 @@ class Garden {
         }
     }
 
-    /* ---------- render (adapted: no wither/cut, no butterflies) ---------- */
+    /* ---------- render (adapted: no wither/cut) ---------- */
     wpt(l, x, y) {
         // birth wobble — damped sway while a freshly grown letter settles
         const now = this._now, S = this.S;
@@ -401,6 +409,8 @@ class Garden {
             const a = age - e.d0; if (a < 0) return;
             const p = wx(e.x, e.y);
             this.rose(B, p[0], p[1], e.R * S, e.rot + j[2], e, a);
+            /* mature roses are butterfly landing spots (Typegarden hook) */
+            if (a > 700) this.perch.push({ id: e.id, x: p[0], y: p[1], R: e.R * S });
         }
     }
     paint(now) {
@@ -412,6 +422,7 @@ class Garden {
         g.clearRect(0, 0, this.W, this.H);
         const B = this.backend(g);
         this.render(B, now);
+        this.drawFlies(B, now, C);   // butterflies above the garden, same as hmm.html
     }
     render(B, now) {
         const S = this.S;
@@ -419,6 +430,7 @@ class Garden {
         this._now = now;
         this._f = CFG.boil && !REDUCED ? Math.floor(now / 120) : 0;
         this._amp = this._f > 0 ? Math.max(0.8, S * 0.01) : 0;
+        this.perch = [];   // rebuilt every frame from mature roses, as in hmm.html
 
         /* layer 0 — stems, leaves and roses BEHIND the letters */
         this.drawLayer(0, B, now);
@@ -451,6 +463,128 @@ class Garden {
 
         /* layer 1 — stems, leaves and roses IN FRONT of the letters */
         this.drawLayer(1, B, now);
+    }
+
+    /* ---------- butterflies (ported from hmm.html) ---------- */
+    /* Differences from the original, and why:
+       - spawnFly(): released by a scheduler (no mouse clicks); capsule
+         6 flies -> 2 so the hero stays elegant; a second one is rare.
+       - 'sit': the original left a perched butterfly forever (it only
+         changed perch on a new click) — here each one departs after a
+         few seconds (f.sitFor) so flights stay occasional.
+       Everything else — steering physics, flutter/wobble, wing-burst
+       while perched, wing/body geometry, perch selection — is 1:1. */
+    spawnFly(cx, cy) {
+        if (this.flies.length >= 2) return;
+        const taken = new Set(this.flies.filter(f => f.st !== 'leave').map(f => f.pid));
+        let best = null, bd = 1e9;
+        for (const p of this.perch) {
+            if (taken.has(p.id)) continue;
+            const d = Math.hypot(p.x - cx, p.y - cy);
+            if (d < bd) { bd = d; best = p; }
+        }
+        const left = cx < this.W / 2, sz = Math.max(9, this.S * 0.09);
+        this.flies.push({
+            x: left ? -40 : this.W + 40,
+            y: cy + (Math.random() - 0.5) * this.H * 0.4,
+            vx: 0, vy: 0,
+            st: best ? 'fly' : 'wander', pid: best ? best.id : null,
+            hx: cx, hy: cy, t0: performance.now(), ph: Math.random() * 6,
+            sz, seed: Math.random() * 100, ang: 0,
+            sit0: 0, sitFor: 4200 + Math.random() * 2600
+        });
+    }
+    flyOff(f) {
+        f.st = 'leave'; f.pid = null;
+        f.ex = f.x < this.W / 2 ? -80 : this.W + 80;
+        f.ey = f.y - this.H * 0.3;
+    }
+    spawnAuto() {
+        if (REDUCED) return false;
+        const active = this.flies.filter(f => f.st !== 'leave');
+        if (active.length >= 2) return false;
+        /* the second simultaneous flyer stays genuinely rare */
+        if (active.length === 1 && Math.random() > 0.25) return false;
+        let cx, cy;
+        if (this.perch.length) {
+            /* bias toward roses away from dead centre so SAHIB stays readable */
+            const cand = this.perch.slice()
+                .sort((a, b) => Math.abs(b.x - this.W / 2) - Math.abs(a.x - this.W / 2));
+            const pick = cand[Math.floor(Math.random() * Math.min(4, cand.length))];
+            cx = pick.x; cy = pick.y;
+        } else {
+            cx = this.W * (0.22 + Math.random() * 0.56);
+            cy = this.H * (0.18 + Math.random() * 0.3);
+        }
+        this.spawnFly(cx, cy);
+        return true;
+    }
+    drawFlies(B, now, Cc) {
+        const dt = Math.min(48, now - (this._fl || now)); this._fl = now;
+        const byId = {}; for (const p of this.perch) byId[p.id] = p;
+        this.flies = this.flies.filter(f => {
+            const t = (now - f.t0) / 1000;
+            let tx, ty;
+            if (f.st === 'sit' || f.st === 'fly') {
+                const p = byId[f.pid];
+                if (!p) { this.flyOff(f); }
+                else { tx = p.x + p.R * 0.05; ty = p.y - p.R * 0.55; }
+            }
+            if (f.st === 'wander') {
+                tx = f.hx + Math.sin(t * 1.3 + f.seed) * 70;
+                ty = f.hy + Math.sin(t * 2.1 + f.seed) * 40;
+                if (t > 3.5) this.flyOff(f);
+            }
+            if (f.st === 'leave') { tx = f.ex; ty = f.ey; }
+            if (f.st === 'sit') {
+                f.x += (tx - f.x) * 0.35; f.y += (ty - f.y) * 0.35; f.ang *= 0.85;
+                f.ph += dt * 0.004;
+                const burst = Math.sin(now / 1000 * 0.9 + f.seed) > 0.75;
+                f.open = burst ? 0.2 + 0.8 * Math.abs(Math.cos(now / 1000 * 9 + f.seed))
+                               : 0.25 + 0.15 * Math.sin(f.ph);
+                if (now - f.sit0 > f.sitFor) this.flyOff(f);   // departure (adaptation)
+            } else {
+                const dx = tx - f.x, dy = ty - f.y, d = Math.hypot(dx, dy) || 1;
+                const sp = f.st === 'leave' ? 0.42 : Math.min(0.34, 0.06 + d * 0.0016);
+                const flut = Math.sin(t * 7 + f.seed) * 0.12, wob = Math.cos(t * 4.3 + f.seed) * 0.1;
+                const ax = (dx / d * sp + wob) - f.vx, ay = (dy / d * sp + flut) - f.vy;
+                f.vx += ax * 0.06 * dt / 16; f.vy += ay * 0.06 * dt / 16;
+                f.x += f.vx * dt; f.y += f.vy * dt + Math.sin(t * 13 + f.seed) * 0.6;
+                f.ang += (Math.max(-0.5, Math.min(0.5, f.vx * 1.4)) - f.ang) * 0.1;
+                f.open = Math.abs(Math.cos(t * 17 + f.seed));
+                if (f.st === 'fly' && d < 5) { f.st = 'sit'; f.ph = 0; f.sit0 = now; }
+                if (f.st === 'leave' && (f.x < -60 || f.x > this.W + 60 || f.y < -60)) return false;
+            }
+            this.butterfly(B, f.x, f.y, f.sz, f.ang, f.open, Cc);
+            return true;
+        });
+    }
+    butterfly(B, x, y, s, ang, o, Cc) {
+        const ca = Math.cos(ang), sa = Math.sin(ang);
+        const T = (px, py) => [x + (px * ca - py * sa) * s, y + (px * sa + py * ca) * s];
+        const wing = (cx, cy, rx, ry, a, side) => {
+            const pts = [], c = Math.cos(a), sn = Math.sin(a);
+            for (let k = 0; k < 22; k++) {
+                const th = k / 22 * Math.PI * 2, r = 1 + 0.08 * Math.sin(th * 3);
+                const lx = Math.cos(th) * rx * r, ly = Math.sin(th) * ry * r;
+                pts.push(T(side * (cx + lx * c - ly * sn) * (0.12 + 0.88 * o), cy + lx * sn + ly * c));
+            }
+            return pts;
+        };
+        for (const sd of [-1, 1]) {
+            B.fill(wing(0.46, 0.28, 0.36, 0.3, 0.5 * sd * sd, sd), C.text);
+            B.fill(wing(0.55, -0.32, 0.55, 0.36, -0.55, sd), C.text);
+            if (o > 0.35) B.fill(wing(0.66, -0.4, 0.13, 0.11, 0, sd), C.red);
+        }
+        const body = [];
+        for (let k = 0; k < 18; k++) {
+            const th = k / 18 * Math.PI * 2;
+            body.push(T(Math.cos(th) * 0.08, Math.sin(th) * 0.48));
+        }
+        B.fill(body, C.blue);
+        const lw = Math.max(0.8, s * 0.05);
+        B.stroke([T(0, -0.42), T(-0.14, -0.72), T(-0.24, -0.86)], C.blue, lw);
+        B.stroke([T(0, -0.42), T(0.14, -0.72), T(0.24, -0.86)], C.blue, lw);
     }
 
     /* ---------- build + layout ---------- */
@@ -575,6 +709,23 @@ function reveal(permanentHeroTime) {
         l.birth  = l.appear + 90;
     });
     startLoop();
+    scheduleButterflies();
+}
+
+/* butterfly release: the garden establishes itself first; the first
+   flyer enters ~4 s after "heyy! I'm SAHIB" begins, then further
+   entries stay sparse (9–16 s apart, refused while two are airborne
+   or a quarter-chance gate for a second). Never runs for
+   prefers-reduced-motion users. */
+function scheduleButterflies() {
+    if (REDUCED) return;
+    const attempt = () => {
+        if (document.body.contains(hero)) {
+            const ok = garden.spawnAuto();
+            setTimeout(attempt, ok ? 9000 + Math.random() * 7000 : 5500);
+        }
+    };
+    setTimeout(attempt, 4000);
 }
 
 async function runGreetings() {
