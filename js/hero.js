@@ -429,7 +429,7 @@ class Garden {
             g.fillStyle = C.text;
             g.font = `700 ${this.S_h}px ${this.F}`;
             g.textAlign = 'center'; g.textBaseline = 'alphabetic';
-            g.fillText('hello! I\u2019m', this.W / 2, this.helloY);
+            g.fillText('heyyy I\u2019m', this.W / 2, this.helloY);
             g.globalAlpha = 1;
         }
 
