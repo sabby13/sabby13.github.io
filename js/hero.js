@@ -406,7 +406,10 @@ class Garden {
     paint(now) {
         const g = this.g, d = this.dpr;
         g.setTransform(d, 0, 0, d, 0, 0);
-        g.fillStyle = PAL.bg; g.fillRect(0, 0, this.W, this.H);
+        /* clear to transparent (not cream): the grain layer beneath the
+           canvas shows through, so the artwork stays crisp and the paper
+           grain lives on the background only */
+        g.clearRect(0, 0, this.W, this.H);
         const B = this.backend(g);
         this.render(B, now);
     }
