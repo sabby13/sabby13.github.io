@@ -205,20 +205,32 @@ body.intro-done .hero-top{
 
 @media (max-width:600px){
 
+    /* Mobile: the name is dropped entirely; the nav takes the whole bar */
+    .hero-top__name{
+        display:none;
+    }
+
     .hero-top{
         flex-direction:column;
-        align-items:flex-start;
-        gap:10px;
+        align-items:center;
+        gap:8px;
+        padding-top:clamp(16px,4vw,24px);
+        padding-bottom:0;
     }
 
+    /* All six links visible: a guaranteed clean 3 + 3 grid,
+       centered on the freed-up width, never clipped off-screen. */
     .hero-top__nav{
-        gap:14px;
+        width:100%;
+        display:grid;
+        grid-template-columns:repeat(3, max-content);
+        justify-content:center;
+        gap:10px clamp(14px, 5vw, 30px);
     }
 
-    /* keep the bar to a clean single nav row on phones;
-       the remaining sections are one scroll away */
-    .hero-top__aux{
-        display:none;
+    .hero-top__nav a{
+        white-space:nowrap;
+        flex-shrink:0;
     }
 
     .greet-word{
