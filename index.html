@@ -145,38 +145,6 @@
 
     <section id="about" class="section">
 
-        <!-- glowing torn-paper seam: the cream About tears up over the hero -->
-        <div class="tear-divider" aria-hidden="true">
-            <svg class="tear" viewBox="0 0 1440 200" preserveAspectRatio="none"
-                 xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <filter id="tornEdge" x="-10%" y="-90%" width="120%" height="280%">
-                        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.42"
-                                      numOctaves="4" seed="7" result="n"/>
-                        <feDisplacementMap in="SourceGraphic" in2="n" scale="34"
-                                           xChannelSelector="R" yChannelSelector="G"/>
-                    </filter>
-                    <filter id="tornGlow" x="-30%" y="-200%" width="160%" height="500%">
-                        <feGaussianBlur stdDeviation="5"/>
-                    </filter>
-                </defs>
-                <g filter="url(#tornEdge)">
-                    <path class="tear__fill"
-                          d="M-40,96 C240,44 480,124 720,84 S1200,44 1480,96 L1480,260 L-40,260 Z"/>
-                    <!-- only the top line glows, so the seam bottom stays clean -->
-                    <g class="tear__edge">
-                        <path class="tear__glow"
-                              d="M-40,96 C240,44 480,124 720,84 S1200,44 1480,96"/>
-                        <path class="tear__rim"
-                              d="M-40,96 C240,44 480,124 720,84 S1200,44 1480,96"/>
-                    </g>
-                </g>
-            </svg>
-
-            <!-- living embers rising off the glowing seam -->
-            <canvas class="tear-sparks"></canvas>
-        </div>
-
         <div class="section__inner about-content">
 
             <h2 class="section-title" data-reveal>
@@ -595,7 +563,6 @@
     <script src="js/main.js?v=3"></script>
     <script src="js/scroll.js?v=3"></script>
     <script src="js/typewriter.js?v=3"></script>
-    <script src="js/sparks.js?v=3"></script>
 
     <!-- Hero: multilingual greetings + Typegarden garden (adapted from hmm.html) -->
     <script src="js/hero.js?v=4"></script>

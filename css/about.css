@@ -1,65 +1,9 @@
 /* =====================================================
    ABOUT
-   A glowing torn seam out of the hero, then a polaroid
-   + intro, closing on the navy tagline.
+   A polaroid + intro, closing on the navy tagline.
+   (The old "glowing torn seam" transition between the
+   hero and this section has been removed entirely.)
    ===================================================== */
-
-/* ---- glowing torn-paper seam ---- */
-
-.tear-divider{
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:100%;                 /* sits just above About, over the hero */
-    height:clamp(90px, 12vw, 170px);
-    pointer-events:none;
-    z-index:5;
-    overflow:visible;
-}
-
-.tear{
-    display:block;
-    width:100%;
-    height:100%;
-    overflow:visible;
-}
-
-/* white halo, applied only to the top line so it bleeds up into the hero */
-.tear__edge{
-    filter:drop-shadow(0 0 7px rgba(255,255,255,.85))
-           drop-shadow(0 0 18px rgba(255,255,255,.45));
-}
-
-.tear__fill{ fill:var(--paper); }              /* cream, matches About   */
-.tear__rim { fill:none; stroke:#fffdf7; stroke-width:2.5; }  /* bright edge */
-
-.tear__glow{
-    fill:none;
-    stroke:#fff;
-    stroke-width:3.5;
-    filter:url(#tornGlow);
-    animation:tear-pulse 4.5s ease-in-out infinite;
-}
-
-/* rising ember particles */
-.tear-sparks{
-    position:absolute;
-    left:0;
-    bottom:0;
-    width:100%;
-    height:230%;              /* reaches up into the hero so sparks can rise */
-    pointer-events:none;
-}
-
-@keyframes tear-pulse{
-    0%, 100%{ opacity:.5; }
-    50%     { opacity:1; }
-}
-
-@media (prefers-reduced-motion:reduce){
-    .tear__glow{ animation:none; opacity:.75; }
-}
-
 
 .about-content{
     position:relative;
