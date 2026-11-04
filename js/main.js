@@ -1,5 +1,11 @@
+/* Parallax — the old hero (Monet background + glass card) is gone;
+   these elements may no longer exist, so everything is guarded. */
+
 const background =
 document.getElementById("background");
+
+const heroCard =
+document.querySelector(".hero-card");
 
 let mouseX = 0;
 let mouseY = 0;
@@ -17,30 +23,33 @@ window.addEventListener("mousemove",(e)=>{
 
 });
 
-function animate(){
+if (background) {
 
-    currentX += (mouseX-currentX)*0.05;
-    currentY += (mouseY-currentY)*0.05;
+    function animate(){
 
-    background.style.transform =
-    `translate(${currentX}px, ${currentY}px)`;
+        currentX += (mouseX-currentX)*0.05;
+        currentY += (mouseY-currentY)*0.05;
 
-    requestAnimationFrame(animate);
+        background.style.transform =
+        `translate(${currentX}px, ${currentY}px)`;
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener("scroll",()=>{
+
+        const scroll = window.scrollY;
+
+        // Hero slowly moves upward
+        background.style.transform =
+            `translate(${currentX}px, ${currentY - scroll*0.15}px)`;
+
+        // Glass card moves slightly slower
+        if (heroCard) {
+            heroCard.style.transform =
+                `translate(-50%, calc(-50% - ${scroll*0.08}px))`;
+        }
+    });
 }
-
-animate();
-
-const heroCard = document.querySelector(".hero-card");
-
-window.addEventListener("scroll",()=>{
-
-    const scroll = window.scrollY;
-
-    // Hero slowly moves upward
-    background.style.transform =
-        `translate(${currentX}px, ${currentY - scroll*0.15}px)`;
-
-    // Glass card moves slightly slower
-    heroCard.style.transform =
-        `translate(-50%, calc(-50% - ${scroll*0.08}px))`;
-});
