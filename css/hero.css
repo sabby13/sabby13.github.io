@@ -205,32 +205,56 @@ body.intro-done .hero-top{
 
 @media (max-width:600px){
 
-    /* Mobile: the name is dropped entirely; the nav takes the whole bar */
+    /* Mobile: the name is dropped; the nav becomes one native-feeling
+       horizontal line that scrolls smoothly if it overflows. */
     .hero-top__name{
         display:none;
     }
 
     .hero-top{
-        flex-direction:column;
-        align-items:center;
-        gap:8px;
+        display:block;                          /* nav owns the full bar */
         padding-top:clamp(16px,4vw,24px);
+        padding-left:0;
+        padding-right:0;
         padding-bottom:0;
     }
 
-    /* All six links visible: a guaranteed clean 3 + 3 grid,
-       centered on the freed-up width, never clipped off-screen. */
+    /* All six links on ONE line: horizontally scrollable only inside
+       this strip — the page itself never scrolls sideways. The last
+       link is intentionally cut by the viewport edge (peek) so it's
+       obvious the nav continues. */
     .hero-top__nav{
+        display:flex;
+        flex-wrap:nowrap;
         width:100%;
-        display:grid;
-        grid-template-columns:repeat(3, max-content);
-        justify-content:center;
-        gap:10px clamp(14px, 5vw, 30px);
+
+        /* compact spacing so a sliver of the next link always peeks
+           into view past the right edge */
+        gap:clamp(13px, 3.6vw, 22px);
+        padding:0 0 0 clamp(16px,4.5vw,20px);
+
+        overflow-x:auto;
+        overflow-y:hidden;
+
+        -webkit-overflow-scrolling:touch;       /* native glide on iOS */
+        scroll-snap-type:x proximity;
+
+        scrollbar-width:none;                   /* Firefox  */
+        -ms-overflow-style:none;                /* old Edge */
+    }
+
+    /* WebKit/Blink: hide the scrollbar completely */
+    .hero-top__nav::-webkit-scrollbar{
+        display:none;
+        width:0;
+        height:0;
     }
 
     .hero-top__nav a{
         white-space:nowrap;
-        flex-shrink:0;
+        flex:0 0 auto;
+        letter-spacing:.12em;
+        scroll-snap-align:start;
     }
 
     .greet-word{
