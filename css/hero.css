@@ -66,18 +66,20 @@
     letter-spacing:.14em;
     text-transform:uppercase;
 
-    /* fails open: visible by default. hero.js adds body.intro-pending
-       at script start to hide it during the intro. If JavaScript never
-       runs, the top bar is simply there — never lost. */
+    /* Fails open: visible by default (no-JS / stale-cache safety).
+       With JS alive, html.js (set in <head> before first paint) hides it
+       for the whole intro; hero.js adds body.intro-done when heyy! I'm
+       SAHIB is revealed — a short subtle fade brings the header in. */
     opacity:1;
-    transition:opacity .9s ease .25s;
+    transition:opacity .6s ease .25s;
 }
 
-body.intro-pending .hero-top{
+/* JS alive → hidden until the hero reveal */
+.js .hero-top{
     opacity:0;
 }
 
-body.intro-done .hero-top{
+.js body.intro-done .hero-top{
     opacity:1;
 }
 
@@ -267,9 +269,10 @@ body.intro-done .hero-top{
 
 @media (prefers-reduced-motion:reduce){
 
+    /* no animated entrance; still hidden during the intro (gated by
+       html.js + body.intro-done), it simply appears at the reveal */
     .hero-top{
         transition:none;
-        opacity:1;
     }
 
     .greet-word{

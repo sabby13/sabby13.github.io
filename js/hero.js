@@ -26,9 +26,8 @@
    hero with readable Playfair type. */
 const fb = document.getElementById('hero-fallback');
 if (fb) fb.remove();
-
-/* The top bar fails open in CSS; hide it only while the intro plays. */
-document.body.classList.add('intro-pending');
+/* header hiding is handled purely in CSS via html.js (set in <head>);
+   hero.js only flips body.intro-done at the hero reveal. */
 
 const hero = document.getElementById('hero');
 const cv   = document.getElementById('garden-canvas');
@@ -564,7 +563,6 @@ function watchSize() {
 function reveal(permanentHeroTime) {
     const gr = document.getElementById('greeting');
     if (gr) gr.remove();
-    document.body.classList.remove('intro-pending');
     document.body.classList.add('intro-done');
 
     const now = performance.now();
@@ -598,7 +596,6 @@ function reducedReveal() {
     // no animations: greetings skipped, garden shown fully grown, static
     garden.letters.forEach(l => { l.appear = 0; l.birth = -1e7; });
     garden.helloAppear = 0;
-    document.body.classList.remove('intro-pending');
     document.body.classList.add('intro-done');
     const gr = document.getElementById('greeting');
     if (gr) gr.remove();
@@ -619,7 +616,6 @@ function failSafe() {
         startLoop();
         garden.paint(performance.now());
     } catch (e) { /* even a dead canvas leaves the inline-CSS cream hero */ }
-    document.body.classList.remove('intro-pending');
     document.body.classList.add('intro-done');
     const gr = document.getElementById('greeting');
     if (gr) gr.remove();

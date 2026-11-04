@@ -1,7 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 
 <head>
+    <script>/* as early as possible: marks that JS is alive, so the hero
+       header can stay hidden during the intro (fails open without JS) */
+    document.documentElement.className =
+        document.documentElement.className.replace('no-js', 'js');
+    /* self-healing: if hero.js never runs (404, blocked, offline),
+       reveal the header anyway so the site is never left without
+       navigation. In the normal path hero.js finishes the intro well
+       before this timer, so this is a silent no-op. */
+    setTimeout(function () {
+        if (!document.body.classList.contains('intro-done')) {
+            document.body.classList.add('intro-done');
+        }
+    }, 7000);</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sahib Preet Singh — Analyst, Developer & Designer building products where AI, data, design and human experience intersect.">
@@ -18,7 +31,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_outward">
 
     <link rel="stylesheet" href="css/main.css?v=3">
-    <link rel="stylesheet" href="css/hero.css?v=5">
+    <link rel="stylesheet" href="css/hero.css?v=6">
 
     <!-- Critical hero fallback: guarantees the full-screen cream hero
          even if a stylesheet is missing, stale-cached, or served with a
@@ -91,6 +104,16 @@
             line-height:1;
             letter-spacing:-.02em;
             font-size:clamp(64px,12vw,170px);
+        }
+
+        /* Header is hidden during the intro whenever JS is alive
+           (html.js is set in <head>). Without JS it simply shows. */
+        .js .hero-top{
+            opacity:0;
+            transition:opacity .6s ease .25s;
+        }
+        .js body.intro-done .hero-top{
+            opacity:1;
         }
     </style>
 </head>
@@ -565,7 +588,7 @@
     <script src="js/typewriter.js?v=3"></script>
 
     <!-- Hero: multilingual greetings + Typegarden garden (adapted from hmm.html) -->
-    <script src="js/hero.js?v=4"></script>
+    <script src="js/hero.js?v=5"></script>
 
 </body>
 
