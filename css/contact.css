@@ -17,7 +17,13 @@
     isolation:isolate;
 }
 
-/* ---- background film ---- */
+/* ---- media layer (film + ambient light) ---- */
+
+.connect-hero__media{
+    position:absolute;
+    inset:0;
+    z-index:0;
+}
 
 .connect-hero__video{
     position:absolute;
@@ -26,7 +32,12 @@
     height:100%;
     object-fit:cover;          /* crop, never stretch */
     object-position:center;
-    z-index:0;
+}
+
+/* ambient-light layer — desktop only (hidden on phones, where the
+   full-screen crop already fills the viewport) */
+.connect-hero__ambient{
+    display:none;
 }
 
 /* gentle veil for type legibility — the film stays bright */
@@ -180,6 +191,45 @@
 @keyframes connect-in{
     from{ opacity:0; transform:translateY(18px); }
     to  { opacity:1; transform:none; }
+}
+
+/* ---- desktop: YouTube-style ambient mode ----
+   The portrait film stays native-ratio, centred and sharp (a
+   downscale from its 1080-wide source); its colours bleed outward
+   through a tiny canvas + heavy blur behind it. */
+@media (min-width:641px){
+
+    .connect-hero__media{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+    }
+
+    /* sharp foreground: full height, native aspect ratio, never stretched */
+    .connect-hero__video{
+        position:relative;
+        inset:auto;
+        width:auto;
+        height:100%;
+        max-width:88vw;
+        object-fit:contain;
+        /* soft dusk ring — melts the video edge into the ambient light */
+        box-shadow:0 0 clamp(50px, 7vw, 100px) clamp(14px, 2.4vw, 34px) rgba(15,20,10,.5);
+    }
+
+    /* moving colour + light, no recognisable objects */
+    .connect-hero__ambient{
+        display:block;
+        position:absolute;
+        inset:0;
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        transform:scale(1.3);               /* bleed past every edge */
+        filter:blur(clamp(64px, 7.5vw, 110px)) saturate(1.6) brightness(1.02);
+        opacity:.85;
+        pointer-events:none;
+    }
 }
 
 /* ---- mobile: same film, smarter crop + tighter composition ---- */

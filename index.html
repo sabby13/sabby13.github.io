@@ -486,11 +486,14 @@
     <section id="socials" class="connect-hero" aria-label="Let's connect — contact links">
 
         <!-- full-bleed background film (garden café) -->
-        <video class="connect-hero__video" autoplay muted loop playsinline
-               aria-hidden="true" tabindex="-1"
-               disablepictureinpicture disableremoteplayback>
-            <source src="assets/connect.mp4" type="video/mp4">
-        </video>
+        <div class="connect-hero__media">
+            <canvas class="connect-hero__ambient" aria-hidden="true"></canvas>
+            <video class="connect-hero__video" autoplay muted loop playsinline
+                   aria-hidden="true" tabindex="-1"
+                   disablepictureinpicture disableremoteplayback>
+                <source src="assets/connect.mp4" type="video/mp4">
+            </video>
+        </div>
         <div class="connect-hero__veil" aria-hidden="true"></div>
 
         <div class="connect-hero__inner">
@@ -541,7 +544,7 @@
     <script src="js/typewriter.js?v=3"></script>
 
     <!-- Let's Connect: background film handling (reduced motion + errors) -->
-    <script src="js/connect.js?v=3"></script>
+    <script src="js/connect.js?v=8"></script>
 
     <!-- Hero: multilingual greetings + Typegarden garden (adapted from hmm.html) -->
     <script src="js/hero.js?v=7"></script>
