@@ -27,6 +27,16 @@
     sec.addEventListener("error", fail, true);
     v.addEventListener("error", fail);
 
+    /* ---- slow, cinematic playback (file itself untouched) ----
+       Set as both playbackRate and defaultPlaybackRate, re-applied on
+       loadedmetadata/play, so it stays 0.7 even if the media reloads
+       or the film loops. */
+    const RATE = 0.7;
+    const applyRate = () => { try { v.defaultPlaybackRate = RATE; v.playbackRate = RATE; } catch (e) { /* ignore */ } };
+    if (v.readyState >= 1) applyRate();
+    v.addEventListener("loadedmetadata", applyRate);
+    v.addEventListener("play", applyRate);
+
     /* ---- reduced motion: park on a single frame, never loop ---- */
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
