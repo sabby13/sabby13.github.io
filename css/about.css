@@ -1,117 +1,84 @@
 /* =====================================================
    ABOUT
-   A polaroid + intro, closing on the navy tagline.
-   (The old "glowing torn seam" transition between the
-   hero and this section has been removed entirely.)
+   An editorial column on the cream paper:
+   "About me" in large serif → the bare vintage ID card
+   (who I am) → the animated construct WebM (how I think),
+   whose light background is multiplied into the paper so
+   no video rectangle shows.
    ===================================================== */
 
-.about-content{
-    position:relative;
-}
-
-
-/* ---- photo + intro ---- */
-
-.about-grid{
-    display:grid;
-    grid-template-columns:auto 1fr;
-    align-items:center;
-    gap:clamp(32px, 6vw, 88px);
-}
-
-
-/* Polaroid frame — tilted, soft drop shadow */
-.polaroid{
-    position:relative;
-    width:clamp(220px, 26vw, 300px);
-    aspect-ratio:1 / 1.18;
-    padding:14px 14px 46px;
-    background:#fff;
-    border-radius:2px;
-    box-shadow:0 22px 45px rgba(22,37,92,.18);
-    transform:rotate(-4deg);
-    transition:transform .5s var(--ease), box-shadow .5s var(--ease);
-}
-
-.polaroid:hover{
-    transform:rotate(-1.5deg) translateY(-4px);
-    box-shadow:0 30px 60px rgba(22,37,92,.24);
-}
-
-.polaroid img,
-.polaroid__slot{
-    position:absolute;
-    inset:14px 14px 46px;
-    width:auto;
-    height:auto;
-    object-fit:cover;
-}
-
-.polaroid img{
-    z-index:2;                     /* sits over the fallback slot */
-}
-
-
-/* ---- copy ---- */
-
-.about-copy h3{
-    font-size:clamp(1.6rem, 3vw, 2.1rem);
-    font-weight:700;
-    color:var(--ink);
-    margin-bottom:1rem;
-    min-height:1.2em;          /* reserve the line so copy doesn't jump */
-}
-
-/* typewriter caret */
-.tw-caret{
-    display:inline-block;
-    width:.09em;
-    height:1em;
-    margin-left:.06em;
-    background:currentColor;
-    vertical-align:-.12em;
-    animation:tw-blink 1s steps(1) infinite;
-}
-
-/* steady caret once typing finishes, then it keeps blinking */
-@keyframes tw-blink{
-    50%{ opacity:0; }
-}
-
-@media (prefers-reduced-motion:reduce){
-    .tw-caret{ display:none; }
-}
-
-.about-copy p{
-    font-size:clamp(1.15rem, 2.3vw, 1.6rem);
-    font-weight:400;
-    line-height:1.5;
-    max-width:34ch;
-    color:var(--ink);
-}
-
-
-/* ---- closing tagline ---- */
-
-.about-tagline{
-    margin-top:clamp(48px, 8vw, 90px);
+.about-wrap{
+    max-width:min(1150px, 96vw);
+    margin-inline:auto;
     text-align:center;
-    font-size:clamp(1.05rem, 2.2vw, 1.4rem);
 }
 
+/* ---- heading ---- */
 
-/* ---- responsive ---- */
+.about-title{
+    font-family:"Playfair Display",Georgia,serif;
+    font-weight:700;
+    font-size:clamp(44px, 7vw, 92px);
+    line-height:1.05;
+    letter-spacing:-.015em;
+    color:#191919;
+    margin-bottom:clamp(40px, 7vh, 88px);
+}
 
-@media (max-width:720px){
+.about-title em{
+    font-style:italic;
+    font-weight:600;
+}
 
-    .about-grid{
-        grid-template-columns:1fr;
-        justify-items:center;
-        text-align:center;
-        gap:36px;
+/* ---- the vintage ID card — bare, no frame/shadow ---- */
+
+.about-card{
+    width:min(720px, 90vw);
+    margin:0 auto clamp(80px, 14vh, 170px);
+}
+
+.about-card img{
+    display:block;
+    width:100%;
+    height:auto;              /* original 16:9 ratio, never cropped */
+    border-radius:6px;        /* softens the bitmap's corners only */
+}
+
+/* ---- animated construct statement ---- */
+/* (direct child of the section, so it can run edge-to-edge
+   on mobile without viewport-unit overflow) */
+
+.about-statement{
+    width:min(1080px, 96vw);
+    margin:0 auto clamp(90px, 15vh, 190px);
+}
+
+/* multiply melts the animation's white background into the cream
+   paper — no visible video rectangle, no card, no mockup */
+.about-construct{
+    display:block;
+    width:100%;
+    height:auto;              /* original ratio preserved */
+    mix-blend-mode:multiply;
+}
+
+/* ---- mobile ---- */
+
+@media (max-width:640px){
+
+    .about-title{
+        font-size:clamp(38px, 11vw, 54px);
+        margin-bottom:clamp(30px, 5.5vh, 48px);
     }
 
-    .about-copy p{
-        margin-inline:auto;
+    .about-card{
+        width:92vw;
+        margin-bottom:clamp(60px, 10vh, 100px);
+    }
+
+    /* edge-to-edge so the animation's lettering stays large */
+    .about-statement{
+        width:100%;
+        margin-bottom:clamp(70px, 12vh, 120px);
     }
 }

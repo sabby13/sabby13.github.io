@@ -187,40 +187,27 @@
 
     <section id="about" class="section">
 
-        <div class="section__inner about-content">
+        <div class="about-wrap">
 
-            <h2 class="section-title" data-reveal>
-                <span class="section-title__cap">A</span>
-                <span class="section-title__rest">bout&nbsp;Me</span>
-            </h2>
+            <h2 class="about-title">About <em>me</em></h2>
 
-            <div class="about-grid">
+            <!-- vintage ID card — finished artwork, shown bare (no frame) -->
+            <figure class="about-card">
+                <img src="assets/card.png" width="1920" height="1080"
+                     alt="Vintage travel ID card — Sahib a.k.a Sabby, occupation: Analyst, AI Engineer, Web Designer"
+                     decoding="async" loading="lazy">
+            </figure>
 
-                <figure class="polaroid" data-reveal>
-                    <img src="assets/me.jpg" alt="Sahib Preet Singh"
-                         onerror="this.remove()">
-                    <span class="polaroid__slot placeholder"
-                          data-label="assets/me.jpg"></span>
-                </figure>
+        </div>
 
-                <div class="about-copy" data-reveal>
-
-                    <h3 data-typewriter>I'm Sahib</h3>
-
-                    <p>
-                        i build things i wish existed, and they often end up 
-                        being what other people wanted too.
-                        
-                    </p>
-
-                </div>
-
-            </div>
-
-            <p class="about-tagline lede" data-reveal>
-                Creating products where AI, data, design, and human experience intersect.
-            </p>
-
+        <!-- animated statement (WebM): the sentence is drawn by the
+             animation itself, so it is not repeated as HTML text -->
+        <div class="about-statement">
+            <video class="about-construct" src="assets/about-construct.webm"
+                   autoplay muted loop playsinline
+                   preload="metadata"
+                   disablepictureinpicture disableremoteplayback
+                   aria-label="i build things i wish existed, and they often end up being what other people wanted too."></video>
         </div>
 
     </section>
@@ -542,6 +529,9 @@
     <script src="js/main.js?v=3"></script>
     <script src="js/scroll.js?v=3"></script>
     <script src="js/typewriter.js?v=3"></script>
+
+    <!-- About: construct WebM handling (reduced motion + off-screen pause) -->
+    <script src="js/about.js?v=1"></script>
 
     <!-- Let's Connect: background film handling (reduced motion + errors) -->
     <script src="js/connect.js?v=8"></script>
