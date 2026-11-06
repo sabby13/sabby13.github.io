@@ -28,7 +28,7 @@
     line-height:1.05;
     letter-spacing:-.015em;
     color:#191919;
-    margin-bottom:clamp(40px, 7vh, 88px);
+    margin-bottom:clamp(90px, 14vh, 200px);
 }
 
 .about-title em{
@@ -133,7 +133,7 @@
 
     .about-title{
         font-size:clamp(38px, 11vw, 54px);
-        margin-bottom:clamp(30px, 5.5vh, 48px);
+        margin-bottom:clamp(45px, 8.5vh, 76px);
     }
 
     .about-card{
