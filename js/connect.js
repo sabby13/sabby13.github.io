@@ -1,27 +1,29 @@
 /* =====================================================
-   LET'S CONNECT — background film handling
-   Tiny and defensive: guarantee muted autoplay, respect
-   prefers-reduced-motion (static frame instead of a
-   looping film), pause while the section is off-screen,
-   slow cinematic playback, and a YouTube-style ambient
-   light layer on desktop.
-
-   Ambient mode: NO second video. A tiny canvas (~144px
-   wide) copy-draws the visible film's frame a couple of
-   times a second-batch; CSS covers it over the section,
-   scales it past the edges and blurs it into pure moving
-   colour. Being fed from the same video element it is
-   perfectly synchronised, and the decode cost is zero.
+   LET'S CONNECT — "five vertical moving memories"
+   Tiny and defensive:
+   • main film (connect.mp4): guarantee muted autoplay,
+     respect prefers-reduced-motion (park on a static
+     frame), pause while the section is off-screen, slow
+     cinematic 0.7 rate.
+   • side fragments (c-2, c-1, c1, c2): desktop-only. They
+     carry NO src in the markup — this script assigns it
+     only when the section nears the viewport, so mobile
+     never downloads them. They play at their natural rate
+     (independent moving memories, deliberately
+     unsynchronised), fade in once actually playing, and
+     pause when the section leaves. Under reduced motion
+     they load metadata only and park on a static frame.
    ===================================================== */
 
 (function () {
 
     const sec = document.querySelector(".connect-hero");
-    const v = sec && sec.querySelector(".connect-hero__video");
+    const v = sec && sec.querySelector(".connect-hero__video:not(.connect-hero__video--side)");
     if (!sec || !v) return;
 
     const mqDesktop = window.matchMedia("(min-width: 641px)");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const sides = Array.from(sec.querySelectorAll(".connect-hero__video--side"));
 
     /* autoplay policies: the muted flag must be set as a property too */
     v.muted = true;
@@ -47,89 +49,94 @@
     v.addEventListener("loadedmetadata", applyRate);
     v.addEventListener("play", applyRate);
 
-    /* ---- ambient light layer (desktop only) ---- */
-    const ac = sec.querySelector(".connect-hero__ambient");
-    const actx = ac && ac.getContext("2d");
+    /* =====================================================
+       SIDE FRAGMENTS — desktop only, near-viewport loading
+       ===================================================== */
 
-    const drawAmbient = () => {
-        if (!actx || !mqDesktop.matches || v.readyState < 2) return;
-        try { actx.drawImage(v, 0, 0, ac.width, ac.height); } catch (e) { /* frame not ready */ }
+    let armed = false;   // srcs assigned?
+
+    const armSides = () => {
+        if (armed || !mqDesktop.matches) return;   // never download on mobile
+        armed = true;
+        sides.forEach(sv => {
+            sv.muted = true;
+            sv.defaultMuted = true;
+            sv.src = sv.dataset.srcSide;
+            if (reduce) {
+                /* static frame, never motion */
+                sv.preload = "metadata";
+                sv.addEventListener("loadedmetadata", () => {
+                    try { sv.currentTime = 0.1; } catch (e) { /* ignore */ }
+                }, { once: true });
+            }
+            sv.load();
+        });
     };
-    const sizeAmbient = () => {
-        if (!actx) return;
-        const ratio = v.videoWidth && v.videoHeight ? v.videoWidth / v.videoHeight : 9 / 16;
-        ac.width = 144;
-        ac.height = Math.max(1, Math.round(144 / ratio));
+
+    const playSides = () => {
+        if (!armed || reduce) return;
+        sides.forEach(sv => {
+            const p = sv.play();
+            if (p && p.catch) p.catch(() => { /* blocked — fine */ });
+            sv.addEventListener("playing", () => sv.classList.add("is-on"), { once: true });
+        });
     };
 
-    let visible = true;   // section within the viewport?
+    const pauseSides = () => sides.forEach(sv => sv.pause());
 
+    /* =====================================================
+       VISIBILITY — pause everything when far off-screen
+       ===================================================== */
+
+    let visible = true;
+
+    /* ---- reduced motion: park EVERYTHING on single frames ---- */
     if (reduce) {
-        /* ---- reduced motion: park on a single frame, never loop ---- */
         v.removeAttribute("autoplay");
         v.loop = false;
         v.preload = "metadata";
         v.pause();
-        // force the first frame to actually paint
         const frame = () => {
             try { v.currentTime = 0.1; } catch (e) { /* ignore */ }
         };
         if (v.readyState >= 1) frame();
         else v.addEventListener("loadedmetadata", frame, { once: true });
-        // one ambient draw once the parked frame is decodable
-        const once = () => {
-            if (!ac.width) sizeAmbient();
-            drawAmbient();
-        };
-        sizeAmbient();
-        v.addEventListener("loadeddata", once, { once: true });
-        v.addEventListener("seeked", once, { once: true });
+        if (mqDesktop.matches) armSides();     // side fragments become static frames too
         return;
     }
 
-    /* ---- normal: pause the film while the section is off-screen ---- */
-
-    /* The ambient layer runs on a plain interval (~15fps) rather than
-       rAF: it paints a heavily blurred tiny canvas, so smoothness is a
-       non-goal, and an interval stays reliable even when the browser
-       suspends rAF (occluded windows) — while the tab itself is hidden
-       the interval is throttled by the browser, i.e. it pauses for free. */
-    let ambientTimer = 0;
-
-    const startAmbient = () => {
-        if (!ambientTimer && visible && mqDesktop.matches && !reduce) {
-            ambientTimer = setInterval(drawAmbient, 66);
-        }
+    const wake = () => {
+        v.play().catch(() => { /* blocked — fine */ });
+        if (mqDesktop.matches) playSides();
     };
-    const stopAmbient = () => { if (ambientTimer) { clearInterval(ambientTimer); ambientTimer = 0; } };
-
-    const sizeNow = () => {
-        if (v.videoWidth) sizeAmbient();   // canvas defaults to 300x150 — always (re)size
-        if (v.readyState >= 2) drawAmbient();
-        startAmbient();
+    const sleep = () => {
+        v.pause();
+        pauseSides();
     };
-    v.addEventListener("loadedmetadata", sizeNow);
-    v.addEventListener("loadeddata", sizeNow);
 
     mqDesktop.addEventListener ? mqDesktop.addEventListener("change", e => {
-        if (e.matches) { sizeAmbient(); startAmbient(); } else stopAmbient();
-    }) : mqDesktop.addListener(e => e.matches ? startAmbient() : stopAmbient());
+        if (e.matches) {
+            armSides();
+            if (visible) wake();
+        } else {
+            sleep();               // switched to mobile: stop all side decode
+        }
+    }) : mqDesktop.addListener(e => e.matches ? wake() : sleep());
 
     if ("IntersectionObserver" in window) {
         new IntersectionObserver(entries => {
             entries.forEach(e => {
                 visible = e.isIntersecting;
                 if (visible) {
-                    v.play().catch(() => { /* blocked — fine */ });
-                    startAmbient();
+                    armSides();    // near the viewport → now it may load
+                    wake();
                 } else {
-                    v.pause();
-                    stopAmbient();
+                    sleep();
                 }
             });
-        }, { threshold: 0.05 }).observe(sec);
+        }, { rootMargin: "240px 0px", threshold: 0.01 }).observe(sec);
     } else {
-        startAmbient();
+        wake();
     }
 
 })();

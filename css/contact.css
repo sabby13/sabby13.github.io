@@ -1,9 +1,14 @@
 /* =====================================================
-   LET'S CONNECT — cinematic full-viewport contact section
-   A background film (garden café) fills the stage; over it:
-   the script-L + pixel "LET'S / CONNECT" composition, three
-   translucent glass pills, and a bottom-right credit.
-   Layout proportions follow assets/connect-reference.png.
+   LET'S CONNECT — "five vertical moving memories"
+   DESKTOP: a full-width, full-height collage of five
+   portrait films side by side — connect.mp4 centre stage
+   carrying the UI, two wider supporting fragments beside
+   it, two narrow cropped fragments entering from the
+   viewport edges. Like a moving photographic contact
+   sheet. Side films load/play only near the viewport.
+   MOBILE: keep the proven design — connect.mp4 alone as
+   the full-screen portrait background (side films are
+   never rendered or downloaded).
    ===================================================== */
 
 .connect-hero{
@@ -12,12 +17,12 @@
     height:100svh;
     min-height:600px;
     overflow:hidden;
-    /* deep garden green — shows only if the film is missing */
+    /* deep garden green — shows only if a film is missing */
     background:#1E2A1C;
     isolation:isolate;
 }
 
-/* ---- media layer (film + ambient light) ---- */
+/* ---- media layer (five-panel film collage) ---- */
 
 .connect-hero__media{
     position:absolute;
@@ -34,13 +39,16 @@
     object-position:center;
 }
 
-/* ambient-light layer — desktop only (hidden on phones, where the
-   full-screen crop already fills the viewport) */
-.connect-hero__ambient{
+/* side fragments: mobile never renders or downloads them */
+.connect-hero__video--side{
     display:none;
+    opacity:0;                 /* faded in once actually playing */
+    transition:opacity .9s var(--ease);
 }
 
-/* gentle veil for type legibility — the film stays bright */
+.connect-hero__video--side.is-on{ opacity:1; }
+
+/* gentle veil for type legibility — the films stay bright */
 .connect-hero__veil{
     position:absolute;
     inset:0;
@@ -195,43 +203,36 @@
     to  { opacity:1; transform:none; }
 }
 
-/* ---- desktop: YouTube-style ambient mode ----
-   The portrait film stays native-ratio, centred and sharp (a
-   downscale from its 1080-wide source); its colours bleed outward
-   through a tiny canvas + heavy blur behind it. */
+/* ---- desktop: the five-panel collage ----
+   12 / 21 / 34 / 21 / 12 — narrow cropped fragments at the
+   viewport edges, wider supports beside the centre, and the
+   functional connect.mp4 panel whose ratio (~0.54 at full
+   height) almost exactly matches the 9:16 film, so the
+   centrepiece shows ~97% of its frame with no upscaling.
+   Strips sit flush: no gutters, borders, radii or shadows. */
 @media (min-width:641px){
 
     .connect-hero__media{
-        display:flex;
-        align-items:center;
-        justify-content:center;
+        display:grid;
+        grid-template-columns:12fr 21fr 34fr 21fr 12fr;
+        align-items:stretch;
     }
 
-    /* sharp foreground: full height, native aspect ratio, never stretched */
+    /* every panel is a grid cell of the full stage */
     .connect-hero__video{
         position:relative;
         inset:auto;
-        width:auto;
-        height:100%;
-        max-width:88vw;
-        object-fit:contain;
-        /* soft dusk ring — melts the video edge into the ambient light */
-        box-shadow:0 0 clamp(50px, 7vw, 100px) clamp(14px, 2.4vw, 34px) rgba(15,20,10,.5);
-    }
-
-    /* moving colour + light, no recognisable objects */
-    .connect-hero__ambient{
-        display:block;
-        position:absolute;
-        inset:0;
         width:100%;
         height:100%;
         object-fit:cover;
-        transform:scale(1.3);               /* bleed past every edge */
-        filter:blur(clamp(64px, 7.5vw, 110px)) saturate(1.6) brightness(1.02);
-        opacity:.85;
-        pointer-events:none;
+        object-position:center;
     }
+
+    .connect-hero__video--side{ display:block; }
+
+    /* retune a panel's crop here if a fragment needs re-framing
+    .connect-hero__video:nth-child(1){ object-position:30% center; } */
+
 }
 
 /* ---- mobile: same film, smarter crop + tighter composition ---- */
@@ -274,16 +275,18 @@
 }
 
 /* ---- reduced motion: no continuous playback ----
-   connect.js pauses the film and parks it on a frame; the CSS keeps
-   the entrance instant. If JS is unavailable the muted film simply
-   plays — the section remains correct either way. */
+   connect.js parks the main film (and the desktop side
+   fragments) on static frames; the CSS keeps the entrance
+   instant. If JS is unavailable the muted films simply
+   play — the section remains correct either way. */
 @media (prefers-reduced-motion:reduce){
     .connect-hero__title,
     .connect-pill{
         animation:none;
     }
     .connect-pill,
-    .connect-pill__arrow{
+    .connect-pill__arrow,
+    .connect-hero__video--side{
         transition:none;
     }
 }
