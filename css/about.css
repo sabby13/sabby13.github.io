@@ -40,7 +40,9 @@
 
 .about-card{
     width:min(720px, 90vw);
-    margin:0 auto clamp(80px, 14vh, 170px);
+    /* large breathing space before the construct animation —
+       two distinct moments on the page */
+    margin:0 auto clamp(160px, 25vh, 340px);
 }
 
 .about-card img{
@@ -79,7 +81,7 @@
 
     .about-card{
         width:92vw;
-        margin-bottom:clamp(60px, 10vh, 100px);
+        margin-bottom:clamp(80px, 13vh, 140px);
     }
 
     /* edge-to-edge so the animation's lettering stays large */
