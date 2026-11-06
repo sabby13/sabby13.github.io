@@ -1,16 +1,39 @@
 /* =====================================================
    SKILLS — "The Star Chart"
-   A hand-drawn scientific plate on cream paper: three
+   A hand-drawn astronomical plate on deep black: three
    constellations (FIG. 01–03) = the three capability
    groups; stars = technologies; hairlines = relationships
    that are technically true. Atlas furniture: registration
    crosses, declination ruler, scale, plate caption.
-   Mobile re-renders the same constellations as three
+   Hierarchy is carried purely by white opacity — never by
+   hue. Mobile re-renders the same constellations as three
    stacked mini-plates.
    ===================================================== */
 
+/* ---- the night sky -------------------------------------
+   The section is a deliberate full-black interruption
+   between the cream sections: no gradient in, no gradient
+   out — just a clean cut. */
+
+#skills{
+    background:#080808;
+}
+
+/* the title lives on black now: near-white ink, and the
+   cap's cream drop-shadow becomes a faint printed halo */
+#skills .section-title{
+    color:#F7F6F1;
+}
+
+#skills .section-title__cap{
+    text-shadow:0 6px 18px rgba(245,243,236,.1);
+}
+
 .chart-wrap{
-    --cobalt:#2646C6;               /* focus ink, brighter than navy */
+    /* off-white plate ink — every chart element derives from
+       this one color; hierarchy = opacity, never hue */
+    --plate-ink:#F5F3EC;
+    --focus-ink:#FFFFFF;            /* the star at the eyepiece */
     max-width:1160px;
     margin-inline:auto;
 }
@@ -23,24 +46,24 @@
     width:100%;
     height:auto;
     overflow:visible;
-    color:var(--navy);
+    color:var(--plate-ink);
 }
 
 /* ---- chart furniture (atlas details) ---- */
 
 .chart__frame{
     fill:none;
-    stroke:rgba(22,37,92,.42);
+    stroke:rgba(245,243,236,.5);
     stroke-width:1.2;
 }
 
 .chart__reg line{
-    stroke:rgba(22,37,92,.55);
+    stroke:rgba(245,243,236,.55);
     stroke-width:1;
 }
 
 .chart__tick{
-    stroke:rgba(22,37,92,.4);
+    stroke:rgba(245,243,236,.38);
     stroke-width:1;
 }
 
@@ -48,7 +71,7 @@
     font-family:var(--font-pixel);
     font-size:9px;
     letter-spacing:.06em;
-    fill:rgba(22,37,92,.55);
+    fill:rgba(245,243,236,.5);
 }
 
 .chart__platecap{
@@ -56,7 +79,7 @@
     font-size:11px;
     font-weight:600;
     letter-spacing:.22em;
-    fill:rgba(22,37,92,.66);
+    fill:rgba(245,243,236,.7);
 }
 
 /* ---- FIG captions (the editorial atlas labels) ---- */
@@ -66,7 +89,7 @@
     font-weight:600;
     font-size:12.5px;
     letter-spacing:.16em;
-    fill:var(--navy);
+    fill:#F7F6F1;
 }
 
 .chart__figno{
@@ -75,7 +98,7 @@
 }
 
 .chart__figrule{
-    stroke:rgba(22,37,92,.5);
+    stroke:rgba(245,243,236,.5);
     stroke-width:1;
 }
 
@@ -83,14 +106,14 @@
     font-family:var(--font-body);
     font-style:italic;
     font-size:12.5px;
-    fill:var(--navy-soft);
+    fill:rgba(245,243,236,.6);
 }
 
 /* ---- relationships ---- */
 
 .edge{
     fill:none;                /* paths must never fill their chord */
-    stroke:rgba(22,37,92,.3);
+    stroke:rgba(245,243,236,.32);
     stroke-width:1;
     stroke-dasharray:1;
     stroke-dashoffset:0;
@@ -112,13 +135,13 @@
 .star__hit{ fill:transparent; }
 
 .star__dot{
-    fill:var(--navy);
-    transition:fill .3s ease;
+    fill:var(--plate-ink);
+    transition:fill .3s ease, filter .3s ease;
 }
 
 .star__ring{
     fill:none;
-    stroke:rgba(22,37,92,.5);
+    stroke:rgba(245,243,236,.55);
     stroke-width:1;
     transition:stroke .3s ease;
 }
@@ -126,7 +149,7 @@
 /* open (outlined) body — "verified position" circle */
 .star__dot--open{
     fill:none;
-    stroke:var(--navy);
+    stroke:var(--plate-ink);
     stroke-width:1.3;
     transition:stroke .3s ease;
 }
@@ -134,7 +157,7 @@
 /* dashed container-ring (Docker) */
 .star__dashring{
     fill:none;
-    stroke:rgba(22,37,92,.55);
+    stroke:rgba(245,243,236,.55);
     stroke-width:1;
     stroke-dasharray:2.2 2.6;
     transition:stroke .3s ease;
@@ -142,34 +165,34 @@
 
 .star__ring2{
     fill:none;
-    stroke:rgba(22,37,92,.3);
+    stroke:rgba(245,243,236,.3);
     stroke-width:1;
     transition:stroke .3s ease;
 }
 
 /* starbursts (4-point) */
 .star__burst{
-    fill:var(--navy);
+    fill:var(--plate-ink);
     transition:fill .3s ease;
 }
 
 /* cross / variable-star marks */
 .star__mark line{
-    stroke:var(--navy);
+    stroke:var(--plate-ink);
     stroke-width:1.1;
     transition:stroke .3s ease;
 }
 
 /* reference-star direction ticks */
 .star__reftick{
-    stroke:rgba(22,37,92,.45);
+    stroke:rgba(245,243,236,.42);
     stroke-width:1;
 }
 
 .star__label{
     font-family:var(--font-body);
     font-weight:400;
-    fill:rgba(22,37,92,.85);
+    fill:rgba(245,243,236,.8);
     transition:fill .3s ease;
 }
 
@@ -178,19 +201,27 @@
 .star--dashring .star__label{ font-weight:500; }
 
 /* anchors get the site's editorial serif — the plate's
-   named major stars */
+   named major stars, set nearly white */
 .star__label--anchor{
     font-family:"Playfair Display", Georgia, serif;
     font-weight:700;
     letter-spacing:.02em;
-    fill:var(--navy);
+    fill:#FBFAF5;
+}
+
+/* a restrained luminosity for the named stars: a soft white
+   halo behind the core — atmospheric, never neon */
+.star--anchor .star__dot--core,
+.star--burst .star__burst{
+    filter:drop-shadow(0 0 6px rgba(245,243,236,.45));
 }
 
 /* orbital arcs — dotted, truthful: a hub's satellites
-   really do lie (almost) on this circle */
+   really do lie (almost) on this circle. One step fainter
+   than the relationship hairlines. */
 .orbit-arc{
     fill:none;
-    stroke:rgba(22,37,92,.4);
+    stroke:rgba(245,243,236,.26);
     stroke-width:1;
     stroke-dasharray:1 7;
     stroke-linecap:round;
@@ -202,7 +233,7 @@
     font-family:var(--font-body);
     font-style:italic;
     font-size:10.5px;
-    fill:rgba(63,91,150,.72);
+    fill:rgba(245,243,236,.55);
     transition:opacity 1s ease 1.2s;
 }
 
@@ -210,7 +241,7 @@
     font-family:var(--font-pixel);
     font-size:9px;
     letter-spacing:.08em;
-    fill:rgba(22,37,92,.5);
+    fill:rgba(245,243,236,.45);
     transition:opacity 1s ease 1.2s;
 }
 
@@ -234,36 +265,45 @@ html.js .chart-wrap:not(.is-set) .edge{ stroke-dashoffset:1; }
     to{ opacity:1; }
 }
 
-/* ---- focus: one technology at the eyepiece ---- */
+/* ---- focus: one constellation becoming visible in the
+   night sky. Brightness and opacity only — the focused star
+   burns full white, its links brighten, everything else
+   recedes into the dark. ---- */
 
-.chart.has-focus .star:not(.is-focus):not(.is-linked){ opacity:.22; }
+.chart.has-focus .star:not(.is-focus):not(.is-linked){ opacity:.18; }
 .chart.has-focus .edge:not(.is-lit){ opacity:.06; }
 .chart.has-focus .orbit-arc:not(.is-lit){ opacity:.12; }
 
 .star.is-focus .star__dot,
-.star.is-linked .star__dot{ fill:var(--cobalt); }
+.star.is-linked .star__dot{ fill:var(--focus-ink); }
 
 .star.is-focus .star__dot--open,
-.star.is-linked .star__dot--open{ fill:none; stroke:var(--cobalt); }
+.star.is-linked .star__dot--open{ fill:none; stroke:var(--focus-ink); }
 
 .star.is-focus .star__ring,
 .star.is-linked .star__ring,
 .star.is-focus .star__ring2,
 .star.is-linked .star__ring2,
 .star.is-focus .star__dashring,
-.star.is-linked .star__dashring{ stroke:var(--cobalt); }
+.star.is-linked .star__dashring{ stroke:var(--focus-ink); }
 
 .star.is-focus .star__burst,
-.star.is-linked .star__burst{ fill:var(--cobalt); }
+.star.is-linked .star__burst{ fill:var(--focus-ink); }
 
 .star.is-focus .star__mark line,
-.star.is-linked .star__mark line{ stroke:var(--cobalt); }
+.star.is-linked .star__mark line{ stroke:var(--focus-ink); }
 
 .star.is-focus .star__label,
-.star.is-linked .star__label{ fill:var(--cobalt); }
+.star.is-linked .star__label{ fill:var(--focus-ink); }
+
+/* the star at the eyepiece gains a touch more halo */
+.star.is-focus .star__dot--core,
+.star.is-focus .star__burst{
+    filter:drop-shadow(0 0 9px rgba(255,255,255,.6));
+}
 
 .edge.is-lit{
-    stroke:var(--cobalt);
+    stroke:var(--focus-ink);
     stroke-width:1.6;
     opacity:1;
     animation:edge-redraw .65s var(--ease) both;
@@ -294,7 +334,7 @@ html.js .chart-wrap:not(.is-set) .edge{ stroke-dashoffset:1; }
         font-weight:600;
         font-size:12.5px;
         letter-spacing:.16em;
-        color:var(--navy);
+        color:#F7F6F1;
         margin-bottom:6px;
     }
 
@@ -309,7 +349,7 @@ html.js .chart-wrap:not(.is-set) .edge{ stroke-dashoffset:1; }
         font-style:italic;
         font-size:12.5px;
         letter-spacing:0;
-        color:var(--navy-soft);
+        color:rgba(245,243,236,.6);
         margin-top:4px;
     }
 
