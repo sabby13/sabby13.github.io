@@ -39,17 +39,31 @@
 /* ---- the vintage ID card — bare, no frame/shadow ---- */
 
 .about-card{
+    position:relative;
+    overflow:visible;         /* the signature may leave the card */
     width:min(720px, 90vw);
     /* large breathing space before the construct animation —
        two distinct moments on the page */
     margin:0 auto clamp(160px, 25vh, 340px);
 }
 
-.about-card img{
+.about-card img:not(.about-card__signature){
     display:block;
     width:100%;
     height:auto;              /* original 16:9 ratio, never cropped */
     border-radius:6px;        /* softens the bitmap's corners only */
+}
+
+/* the handwritten signature — anchored to the card's bottom-right
+   corner with percentages, so it stays attached to the same region
+   of the card at every size and hangs past the boundary */
+.about-card__signature{
+    position:absolute;
+    right:-4%;
+    bottom:-18%;
+    width:30%;
+    height:auto;              /* original aspect ratio, never distorted */
+    pointer-events:none;
 }
 
 /* ---- animated construct statement ---- */

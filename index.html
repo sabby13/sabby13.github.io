@@ -32,7 +32,7 @@
 
     <link rel="stylesheet" href="css/main.css?v=4">
     <link rel="stylesheet" href="css/hero.css?v=6">
-    <link rel="stylesheet" href="css/about.css?v=4">
+    <link rel="stylesheet" href="css/about.css?v=5">
     <link rel="stylesheet" href="css/contact.css?v=2">
 
     <!-- Critical hero fallback: guarantees the full-screen cream hero
@@ -193,10 +193,15 @@
 
             <h2 class="about-title">About <em>me</em></h2>
 
-            <!-- vintage ID card — finished artwork, shown bare (no frame) -->
+            <!-- vintage ID card — finished artwork, shown bare (no frame);
+                 the handwritten signature is overlaid on top like a
+                 physical signing and deliberately hangs past the edge -->
             <figure class="about-card">
                 <img src="assets/card.png" width="1920" height="1080"
                      alt="Vintage travel ID card — Sahib a.k.a Sabby, occupation: Analyst, AI Engineer, Web Designer"
+                     decoding="async" loading="lazy">
+                <img class="about-card__signature" src="assets/signature.png"
+                     alt="" aria-hidden="true"
                      decoding="async" loading="lazy">
             </figure>
 
