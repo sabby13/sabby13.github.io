@@ -1,116 +1,332 @@
 /* =====================================================
-   RESUME
-   A vertical timeline: a hairline rail with navy nodes,
-   large light year numerals, and a bold company / italic
-   role hierarchy. Closes on a navy pill CTA.
+   RESUME — "The 80-Column Record"
+   Employment history as machine-readable paper: three
+   IBM-style punch cards on the desk. The interpreter line
+   is the human-readable record; the holes encode it in
+   029 Hollerith code. On first view a reader beam sweeps
+   each card once and the print surfaces with it.
+   Fails open (no JS = fully printed); reduced motion
+   parks everything in the final state.
+   Mobile re-composes the cards at readable scale with a
+   portrait variant of the same artifact.
    ===================================================== */
 
-.timeline{
-    list-style:none;
-    width:min(720px, 100%);
-    margin-inline:auto;
-}
-
-.timeline__item{
+.resume-desk{
     position:relative;
-    display:grid;
-    grid-template-columns:clamp(58px, 8vw, 96px) 1fr;
-    gap:clamp(18px, 3.5vw, 44px);
-    padding:clamp(30px, 4.5vw, 46px) 0
-            clamp(30px, 4.5vw, 46px)
-            clamp(22px, 3vw, 34px);
-    /* the rail */
-    border-left:1.5px solid var(--line);
+    max-width:1020px;
+    margin:clamp(30px, 5.5vh, 58px) auto 0;
 }
 
-/* node on the rail */
-.timeline__item::before{
+/* ---- desk furniture: registration marks, metadata, note ---- */
+
+.resume-reg{
+    position:absolute;
+    width:15px;
+    height:15px;
+    opacity:.4;
+}
+
+.resume-reg::before,
+.resume-reg::after{
     content:"";
     position:absolute;
-    left:0;
-    top:clamp(34px, 4.9vw, 52px);
-    width:11px;
-    height:11px;
-    border-radius:50%;
     background:var(--navy);
-    transform:translateX(-50%);
-    box-shadow:0 0 0 5px var(--paper);   /* clean punch through the rail */
-    transition:transform .3s var(--ease);
 }
 
-.timeline__item:hover::before{
-    transform:translateX(-50%) scale(1.35);
-}
+.resume-reg::before{ left:0; right:0; top:7px; height:1px; }
+.resume-reg::after{ top:0; bottom:0; left:7px; width:1px; }
 
-/* large, light year numeral */
-.timeline__year{
-    font-size:clamp(1.5rem, 3vw, 2.15rem);
-    font-weight:300;
-    letter-spacing:.03em;
+.resume-reg--tl{ top:-8px; left:36%; }
+.resume-reg--br{ bottom:-10px; right:34%; }
+
+.resume-note{
+    position:absolute;
+    top:-40px;
+    right:2%;
+    font-style:italic;
+    font-size:15px;
     color:var(--navy-soft);
-    line-height:1.1;
+    transform:rotate(-2.2deg);
 }
 
-.timeline__body{
-    align-self:center;
-}
-
-/* company — the anchor */
-.timeline__org{
-    font-size:clamp(1.3rem, 2.6vw, 1.7rem);
-    font-weight:700;
-    color:var(--navy);
-    line-height:1.3;
-    margin-bottom:.3em;
-}
-
-/* role — italic navy-soft via .lede */
-.timeline__role{
-    font-size:clamp(1.05rem, 2.2vw, 1.35rem);
-    line-height:1.4;
-}
-
-
-@media (max-width:520px){
-    .timeline__item{
-        grid-template-columns:1fr;
-        gap:.4em;
-    }
-    /* year sits above the body on narrow screens */
-    .timeline__body{ align-self:start; }
-}
-
-
-/* ---- CTA pill ---- */
-
-.resume-cta{
-    display:flex;
-    justify-content:center;
-    margin-top:clamp(32px, 5vw, 54px);
-}
-
-.pill{
-    display:inline-flex;
-    align-items:center;
-    gap:.5em;
-    padding:.85em 1.9em;
-    background:var(--navy);
-    color:var(--paper);
-    border-radius:999px;
+.resume-metro{
+    position:absolute;
     font-family:var(--font-pixel);
-    font-weight:500;
-    font-size:clamp(1.05rem, 2.2vw, 1.3rem);
+    font-size:9px;
+    letter-spacing:.08em;
+    color:rgba(22,37,92,.55);
+}
+
+.resume-metro--a{ top:-26px; left:2%; }
+.resume-metro--b{ bottom:-20px; left:2%; }
+
+/* ---- card wrappers: physical placement on the desk ---- */
+
+.pcard-wrap{
+    position:relative;
+    width:min(660px, 92%);
+    margin:0;
+    padding:0;
+    transform:rotate(var(--rot, 0deg));
+    transition:transform .5s var(--ease);
+}
+
+.pcard-wrap--nicl{
+    margin-left:auto;                 /* NICL sits right …      */
+    z-index:2;
+}
+
+.pcard-wrap--century{
+    margin:-58px auto 0 0;            /* … Century tucks under its corner */
+    z-index:1;
+}
+
+.pcard-wrap:hover{
+    transform:rotate(calc(var(--rot, 0deg) * .4)) translateY(-6px);
+}
+
+/* small file-cabinet tag above each card */
+.pcard-tag{
+    position:absolute;
+    top:-17px;
+    right:8px;
+    font-family:var(--font-pixel);
+    font-size:9px;
+    letter-spacing:.07em;
+    color:rgba(22,37,92,.6);
+    white-space:nowrap;
+}
+
+.pcard-tag--left{ right:auto; left:8px; }
+
+.pcard{ position:relative; z-index:1; }
+
+/* ---- the card itself ---- */
+
+.pcard__svg{
+    display:block;
+    width:100%;
+    height:auto;
+    filter:drop-shadow(0 12px 20px rgba(22, 30, 70, .16));
+}
+
+.pcard__svg--mobile{ display:none; }   /* desktop composition first */
+
+.pcard__stock{
+    fill:url(#pc-stock);
+    stroke:rgba(22,37,92,.3);
+    stroke-width:1;
+}
+
+.pcard__wear{
+    fill:none;
+    stroke:rgba(22,37,92,.06);
+    stroke-width:1;
+}
+
+.pcard__spot{ fill:rgba(112,84,34,.05); }   /* age spot */
+
+.pcard__reg line{
+    stroke:rgba(22,37,92,.5);
+    stroke-width:1;
+}
+
+/* pre-printed card furniture — always visible (stock comes printed) */
+.pcard__tick{
+    stroke:rgba(22,37,92,.38);
+    stroke-width:.6;
+    fill:none;
+}
+
+.pcard__ruler{
+    font-family:var(--font-pixel);
+    font-size:5px;
+    fill:rgba(22,37,92,.5);
+    text-anchor:middle;
+}
+
+.pcard__ruler--major{ fill:rgba(22,37,92,.85); }
+
+.pcard__form{
+    font-family:var(--font-pixel);
+    font-size:8px;
+    letter-spacing:.08em;
+    fill:rgba(22,37,92,.45);
+}
+
+/* the punched holes — dark slivers through the stock */
+.pcard__holes{
+    fill:#1E2745;
+    opacity:.88;
+}
+
+/* interpreter print + reader strips: ghosted until the beam reads them */
+.pcard__print{ opacity:1; transition:opacity .5s ease var(--d, 0s); }
+
+html.js .resume-desk:not(.is-scanned) .pcard__print{ opacity:.07; transition:none; }
+
+html.js .resume-desk.is-scanned .pcard__print{
+    opacity:1;
+    transition:opacity .5s ease var(--d, 0s);
+}
+
+.pcard__int{
+    font-family:var(--font-body);
     letter-spacing:.02em;
-    text-decoration:none;
-    box-shadow:0 12px 26px rgba(22,37,92,.28);
-    transition:transform .3s var(--ease), box-shadow .3s var(--ease);
 }
 
-.pill:hover{
-    transform:translateY(-3px);
-    box-shadow:0 18px 36px rgba(22,37,92,.34);
+.pcard__int--org{ font-size:15px; font-weight:700; fill:var(--navy); }
+.pcard__int--year{ font-size:15px; font-weight:700; fill:var(--navy); }
+.pcard__int--role{ font-size:13.5px; font-weight:500; fill:rgba(22,37,92,.94); }
+.pcard__int--s{ font-size:13.5px; }
+
+.pcard__int--m1{ font-size:15.5px; }
+.pcard__int--m2{ font-size:13px; }
+
+.pcard__read{
+    font-family:var(--font-pixel);
+    font-size:8px;
+    letter-spacing:.05em;
+    fill:rgba(22,37,92,.62);
 }
 
-.pill .arrow{
-    color:var(--paper);
+/* the drawn ↗ on the master card */
+.pcard__arrow{
+    stroke:var(--navy);
+    stroke-width:2.2;
+    fill:none;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    transition:transform .35s var(--ease), opacity .5s ease var(--d, 0s);
+}
+
+/* the reader beam — a warm light bar, once per card */
+.pcard__beam{
+    opacity:0;
+    fill:url(#pc-beam);
+    mix-blend-mode:screen;
+    pointer-events:none;
+}
+
+html.js .resume-desk.is-scanned .pcard__beam{
+    animation:pc-beam var(--dur, 1s) linear var(--sd, 0s) forwards;
+}
+
+@keyframes pc-beam{
+    0%{ opacity:0; transform:translateX(0); }
+    7%{ opacity:1; }
+    85%{ opacity:1; }
+    100%{ opacity:0; transform:translateX(var(--sweep, 920px)); }
+}
+
+/* ---- master card: pulled from the deck, itself the link ---- */
+
+.resume-record{
+    position:relative;
+    display:block;
+    width:min(470px, 78%);
+    margin:-22px 2% 0 auto;
+    transform:rotate(var(--rot, 1.7deg));
+    transition:transform .5s var(--ease);
+    z-index:3;
+}
+
+.resume-record:hover,
+.resume-record:focus-visible{
+    transform:rotate(calc(var(--rot, 1.7deg) * .6)) translateY(-7px);
+    outline:none;
+}
+
+.resume-record:focus-visible{
+    outline:2px dashed rgba(22,37,92,.55);
+    outline-offset:8px;
+}
+
+.resume-record:hover .pcard__arrow{
+    transform:translate(2.5px, -2.5px);
+}
+
+/* the deck it was pulled from */
+.deck-edge{
+    position:absolute;
+    inset:0;
+    background:#EFE7D2;
+    border:1px solid rgba(22,37,92,.25);
+    border-radius:3px;
+    box-shadow:0 8px 16px rgba(22,30,70,.10);
+    z-index:0;
+}
+
+.deck-edge--1{ transform:rotate(2.4deg) translate(7px, 12px); }
+.deck-edge--2{ transform:rotate(-1.1deg) translate(-5px, 18px); background:#E9E0C9; }
+
+/* punched-out chads scattered on the desk */
+.chad{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(22,37,92,.16);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.4);
+}
+
+.chad--1{ width:7px; height:7px; right:4%; top:56%; }
+.chad--2{ width:5px; height:5px; right:10%; top:62%; }
+.chad--3{ width:6px; height:6px; left:12%; bottom:9%; opacity:.7; top:auto; }
+
+/* =====================================================
+   MOBILE — the same artifact re-composed at readable
+   scale (portrait card variants), not a shrunken desk
+   ===================================================== */
+@media (max-width:760px){
+
+    .resume-desk{
+        max-width:420px;
+        padding-top:34px;
+    }
+
+    .pcard__svg--desktop{ display:none; }
+    .pcard__svg--mobile{ display:block; }
+
+    .resume-metro--a{ display:none; }
+
+    .resume-note{
+        top:0;
+        right:0;
+        font-size:14px;
+    }
+
+    .pcard-wrap{ width:100%; }
+    .pcard-wrap--nicl{ margin:0 auto; }
+    .pcard-wrap--century{ margin:-14px auto 0; }
+
+    .resume-record{
+        width:min(100%, 360px);
+        margin:30px auto 0;
+    }
+
+    .resume-reg--br{ display:none; }
+    .chad--3{ display:none; }
+
+    .resume-metro--b{
+        position:static;
+        display:block;
+        text-align:center;
+        margin-top:30px;
+    }
+}
+
+/* =====================================================
+   REDUCED MOTION — the record is simply on file
+   ===================================================== */
+@media (prefers-reduced-motion: reduce){
+
+    .pcard__beam{ display:none; }
+
+    html.js .resume-desk:not(.is-scanned) .pcard__print{ opacity:1; }
+    .pcard__print,
+    .pcard__arrow{ transition:none !important; }
+
+    .pcard-wrap,
+    .resume-record{ transition:none; }
+
+    .resume-record:hover .pcard__arrow{ transform:none; }
 }

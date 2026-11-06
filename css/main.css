@@ -1,11 +1,11 @@
 /* NOTE: stylesheets for sections that get redesigned independently are
    linked DIRECTLY from index.html (not @imported here) so their cache
-   key can be versioned on each change — hero.css, about.css, contact.css.
+   key can be versioned on each change — hero.css, about.css, contact.css,
+   skills.css, resume.css.
    Unversioned @import URLs let browsers/CDNs keep serving a stale copy. */
 @import url("navigation.css");
 @import url("sections.css");
 @import url("projects.css");
-@import url("resume.css");
 @import url("research.css");
 @import url("animation.css");
 
