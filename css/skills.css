@@ -1,114 +1,229 @@
 /* =====================================================
-   SKILLS
-   Left column: named capability groups.
-   Right column: three concentric rings of tech that
-   revolve at different speeds — the "this will rotate"
-   motion from the design, realised.
+   SKILLS — "The Star Chart"
+   A hand-drawn scientific plate on cream paper: three
+   constellations (FIG. 01–03) = the three capability
+   groups; stars = technologies; hairlines = relationships
+   that are technically true. Atlas furniture: registration
+   crosses, declination ruler, scale, plate caption.
+   Mobile re-renders the same constellations as three
+   stacked mini-plates.
    ===================================================== */
 
-.skills-grid{
-    display:grid;
-    grid-template-columns:1fr minmax(300px, 440px);
-    align-items:center;
-    gap:clamp(32px, 5vw, 72px);
+.chart-wrap{
+    --cobalt:#2646C6;               /* focus ink, brighter than navy */
+    max-width:1160px;
+    margin-inline:auto;
 }
 
+.chart-plate{ display:block; }
+.chart-minis{ display:none; }
 
-/* ---- capability groups ---- */
-
-.skills-list{
-    display:flex;
-    flex-direction:column;
-    gap:clamp(36px, 5vw, 56px);
-}
-
-.skill-group__name{
-    font-size:clamp(1.25rem, 2.4vw, 1.6rem);
-    font-weight:700;
-    color:var(--ink);
-    margin-bottom:.35rem;
-}
-
-.skill-group__desc{
-    font-size:clamp(1.05rem, 2.1vw, 1.35rem);
-    margin-bottom:.35rem;
-}
-
-.skill-group__stack{
-    font-size:clamp(1rem, 2vw, 1.25rem);
-    color:var(--ink);
-    font-weight:400;
-}
-
-
-/* ---- revolving tech rings ---- */
-
-.skills-orbit{
-    justify-self:center;
-    width:100%;
-    max-width:440px;         /* full orbit, uncropped */
-}
-
-.orbit{
+.chart{
     display:block;
     width:100%;
     height:auto;
     overflow:visible;
+    color:var(--navy);
 }
 
-/* faint guide circles under the text */
-.orbit__guides circle{
+/* ---- chart furniture (atlas details) ---- */
+
+.chart__frame{
     fill:none;
-    stroke:var(--line);
+    stroke:rgba(22,37,92,.42);
+    stroke-width:1.2;
+}
+
+.chart__reg line{
+    stroke:rgba(22,37,92,.55);
     stroke-width:1;
 }
 
-/* the curved tech text */
-.orbit__ring text{
+.chart__tick{
+    stroke:rgba(22,37,92,.4);
+    stroke-width:1;
+}
+
+.chart__tickno{
+    font-family:var(--font-pixel);
+    font-size:9px;
+    letter-spacing:.06em;
+    fill:rgba(22,37,92,.55);
+}
+
+.chart__platecap{
+    font-family:var(--font-body);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.22em;
+    fill:rgba(22,37,92,.66);
+}
+
+/* ---- FIG captions (the editorial atlas labels) ---- */
+
+.chart__figline{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:.16em;
     fill:var(--navy);
+}
+
+.chart__figno{
+    font-family:var(--font-pixel);
+    font-weight:600;
+}
+
+.chart__figrule{
+    stroke:rgba(22,37,92,.5);
+    stroke-width:1;
+}
+
+.chart__figdesc{
+    font-family:var(--font-body);
+    font-style:italic;
+    font-size:12.5px;
+    fill:var(--navy-soft);
+}
+
+/* ---- relationships ---- */
+
+.edge{
+    stroke:rgba(22,37,92,.3);
+    stroke-width:1;
+    stroke-dasharray:1;
+    stroke-dashoffset:0;
+    transition:
+        stroke-dashoffset .8s var(--ease) var(--d, 0s),
+        opacity .35s ease,
+        stroke .35s ease,
+        stroke-width .35s ease;
+}
+
+/* ---- stars ---- */
+
+.star{
+    cursor:pointer;
+    outline:none;
+    transition:opacity .35s ease;
+}
+
+.star__hit{ fill:transparent; }      /* fat invisible hit area */
+
+.star__dot{
+    fill:var(--navy);
+    transition:fill .3s ease;
+}
+
+.star__ring{
+    fill:none;
+    stroke:rgba(22,37,92,.5);
+    stroke-width:1;
+    transition:stroke .3s ease;
+}
+
+.star__label{
     font-family:var(--font-body);
     font-weight:500;
-    letter-spacing:.02em;
+    fill:rgba(22,37,92,.92);
+    transition:fill .3s ease;
 }
 
-.orbit__ring--outer text{ font-size:26px; }
-.orbit__ring--mid   text{ font-size:23px; }
-.orbit__ring--inner text{ font-size:20px; }
+/* ---- entrance: one-shot "the plate is being drawn" ----
+   Armed only under html.js (fails open without JS). Stars
+   fade up in a stagger; edges draw themselves in. */
 
-/* each ring rotates about the SVG centre (300,300) */
-.orbit__ring{
-    transform-box:view-box;
-    transform-origin:300px 300px;
-    animation:orbit-spin linear infinite;
-    will-change:transform;
+html.js .chart-wrap:not(.is-set) .star{ opacity:0; }
+html.js .chart-wrap:not(.is-set) .edge{ stroke-dashoffset:1; }
+
+.chart-wrap.is-set .star{
+    animation:star-in .55s var(--ease) var(--d, 0s) backwards;
 }
 
-.orbit__ring--outer{ animation-duration:46s; }
-.orbit__ring--mid  { animation-duration:34s; animation-direction:reverse; }
-.orbit__ring--inner{ animation-duration:24s; }
-
-@keyframes orbit-spin{
-    to{ transform:rotate(360deg); }
+@keyframes star-in{
+    from{ opacity:0; }
+    to{ opacity:1; }
 }
 
+/* ---- focus: one technology at the eyepiece ---- */
 
-/* ---- responsive ---- */
+.chart.has-focus .star:not(.is-focus):not(.is-linked){ opacity:.22; }
+.chart.has-focus .edge:not(.is-lit){ opacity:.06; }
+
+.star.is-focus .star__dot,
+.star.is-linked .star__dot{ fill:var(--cobalt); }
+
+.star.is-focus .star__ring{ stroke:var(--cobalt); }
+
+.star.is-focus .star__label,
+.star.is-linked .star__label{ fill:var(--cobalt); font-weight:600; }
+
+.edge.is-lit{
+    stroke:var(--cobalt);
+    stroke-width:1.6;
+    opacity:1;
+    animation:edge-redraw .65s var(--ease) both;
+}
+
+@keyframes edge-redraw{
+    from{ stroke-dashoffset:1; }
+    to{ stroke-dashoffset:0; }
+}
+
+/* ---- mobile: stacked mini-plates ---- */
 
 @media (max-width:760px){
 
-    .skills-grid{
-        grid-template-columns:1fr;
-        justify-items:center;
-        gap:48px;
+    .chart-plate{ display:none; }
+
+    .chart-minis{
+        display:block;
+        padding-top:clamp(28px, 6vh, 48px);
     }
 
-    .skills-orbit{
-        max-width:340px;
+    .chart-mini{ margin:0 0 clamp(40px, 7vh, 64px); }
+
+    .chart-mini:last-child{ margin-bottom:0; }
+
+    .chart-mini__cap{
+        font-family:var(--font-body);
+        font-weight:600;
+        font-size:12.5px;
+        letter-spacing:.16em;
+        color:var(--navy);
+        margin-bottom:6px;
     }
+
+    .chart-mini__no{
+        font-family:var(--font-pixel);
+        font-weight:600;
+    }
+
+    .chart-mini__desc{
+        display:block;
+        font-weight:400;
+        font-style:italic;
+        font-size:12.5px;
+        letter-spacing:0;
+        color:var(--navy-soft);
+        margin-top:4px;
+    }
+
+    .chart--mini{ max-width:420px; margin-inline:auto; }
 }
 
-@media (prefers-reduced-motion:reduce){
-    .orbit__ring{
-        animation:none;
-    }
+/* ---- reduced motion: the finished chart, instantly ---- */
+
+@media (prefers-reduced-motion: reduce){
+
+    html.js .chart-wrap:not(.is-set) .star{ opacity:1; }
+    html.js .chart-wrap:not(.is-set) .edge{ stroke-dashoffset:0; }
+
+    .chart-wrap.is-set .star{ animation:none; }
+    .edge.is-lit{ animation:none; }
+    .edge,
+    .star,
+    .star__dot,
+    .star__ring,
+    .star__label{ transition:none; }
 }
