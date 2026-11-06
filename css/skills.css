@@ -30,6 +30,7 @@
     line-height:1.05;
     letter-spacing:-.015em;
     color:#F7F6F1;
+    text-align:center;                      /* centred, like the About heading */
     margin-bottom:clamp(40px, 6vw, 72px);   /* unchanged section rhythm */
 }
 
