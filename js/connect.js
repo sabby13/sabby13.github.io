@@ -1,18 +1,19 @@
 /* =====================================================
-   LET'S CONNECT — "five vertical moving memories"
+   LET'S CONNECT — "three panels, hidden second memories"
    Tiny and defensive:
    • main film (connect.mp4): guarantee muted autoplay,
      respect prefers-reduced-motion (park on a static
      frame), pause while the section is off-screen, slow
-     cinematic 0.7 rate.
-   • side fragments (c-2, c-1, c1, c2): desktop-only. They
-     carry NO src in the markup — this script assigns it
-     only when the section nears the viewport, so mobile
-     never downloads them. They play at their natural rate
-     (independent moving memories, deliberately
-     unsynchronised), fade in once actually playing, and
-     pause when the section leaves. Under reduced motion
-     they load metadata only and park on a static frame.
+     cinematic 0.7 rate. It never moves.
+   • side panels are two-memory REELS (c-1/c-2, c1/c2).
+     Only the active memory carries a src initially — the
+     hidden one arms lazily on arrow hover (pre-load) or
+     click, so at most three films ever decode at once.
+     Reel switches slide the track horizontally (~450ms);
+     the outgoing film pauses once the slide settles.
+     Reduced motion: everything parks on static frames,
+     reel switches are immediate.
+   Mobile never arms the side reels at all.
    ===================================================== */
 
 (function () {
@@ -23,7 +24,6 @@
 
     const mqDesktop = window.matchMedia("(min-width: 641px)");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const sides = Array.from(sec.querySelectorAll(".connect-hero__video--side"));
 
     /* autoplay policies: the muted flag must be set as a property too */
     v.muted = true;
@@ -39,10 +39,7 @@
     sec.addEventListener("error", fail, true);
     v.addEventListener("error", fail);
 
-    /* ---- slow, cinematic playback (file itself untouched) ----
-       Set as both playbackRate and defaultPlaybackRate, re-applied on
-       loadedmetadata/play, so it stays 0.7 even if the media reloads
-       or the film loops. */
+    /* ---- slow, cinematic playback (file itself untouched) ---- */
     const RATE = 0.7;
     const applyRate = () => { try { v.defaultPlaybackRate = RATE; v.playbackRate = RATE; } catch (e) { /* ignore */ } };
     if (v.readyState >= 1) applyRate();
@@ -50,39 +47,95 @@
     v.addEventListener("play", applyRate);
 
     /* =====================================================
-       SIDE FRAGMENTS — desktop only, near-viewport loading
+       SIDE REELS — c-1/c-2 and c1/c2
        ===================================================== */
 
-    let armed = false;   // srcs assigned?
-
-    const armSides = () => {
-        if (armed || !mqDesktop.matches) return;   // never download on mobile
-        armed = true;
-        sides.forEach(sv => {
-            sv.muted = true;
-            sv.defaultMuted = true;
-            sv.src = sv.dataset.srcSide;
-            if (reduce) {
-                /* static frame, never motion */
-                sv.preload = "metadata";
-                sv.addEventListener("loadedmetadata", () => {
-                    try { sv.currentTime = 0.1; } catch (e) { /* ignore */ }
-                }, { once: true });
-            }
-            sv.load();
-        });
+    const playVideo = sv => {
+        if (!sv) return;
+        const p = sv.play();
+        if (p && p.catch) p.catch(() => { /* blocked — fine */ });
     };
 
-    const playSides = () => {
-        if (!armed || reduce) return;
-        sides.forEach(sv => {
-            const p = sv.play();
-            if (p && p.catch) p.catch(() => { /* blocked — fine */ });
-            sv.addEventListener("playing", () => sv.classList.add("is-on"), { once: true });
-        });
+    /* assign the src the first time a film is actually needed */
+    const armVideo = sv => {
+        if (!sv || sv.dataset.armed) return;
+        sv.dataset.armed = "1";
+        sv.muted = true;
+        sv.defaultMuted = true;
+        sv.src = sv.dataset.srcSide;
+        if (reduce) {
+            /* static frame, never motion */
+            sv.preload = "metadata";
+            sv.addEventListener("loadedmetadata", () => {
+                try { sv.currentTime = 0.1; } catch (e) { /* ignore */ }
+            }, { once: true });
+        }
+        sv.load();
     };
 
-    const pauseSides = () => sides.forEach(sv => sv.pause());
+    const reels = Array.from(sec.querySelectorAll(".connect-reel")).map(el => ({
+        el,
+        track: el.querySelector(".connect-reel__track"),
+        nav: el.querySelector(".connect-reel__nav"),
+        slides: Array.from(el.querySelectorAll(".connect-reel__slide"))
+            .map(s => s.querySelector(".connect-hero__video--side")),
+        idx: 0,
+        settle: 0,          // pending "pause the outgoing film" timer
+    }));
+
+    const LABEL = [
+        "Show the next memory clip",
+        "Back to the previous memory clip",
+    ];
+
+    const playActive = reel => {
+        const sv = reel.slides[reel.idx];
+        playVideo(sv);
+        sv.addEventListener("playing", () => sv.classList.add("is-on"), { once: true });
+    };
+
+    const pauseAll = reel => reel.slides.forEach(sv => sv.pause());
+
+    /* the film this reel would navigate TO right now */
+    const peekNext = reel => reel.slides[1 - reel.idx];
+
+    const go = (reel, nextIdx) => {
+        if (nextIdx === reel.idx || nextIdx < 0 || nextIdx >= reel.slides.length) return;
+        const incoming = reel.slides[nextIdx];
+        const outgoing = reel.slides[reel.idx];
+
+        armVideo(incoming);                 // lazy src (usually already pre-armed)
+        playVideo(incoming);
+        incoming.addEventListener("playing", () => incoming.classList.add("is-on"), { once: true });
+
+        reel.track.style.transform = "translateX(" + (nextIdx ? -50 : 0) + "%)";
+
+        clearTimeout(reel.settle);
+        reel.settle = setTimeout(() => {    // pause the outgoing film once the slide settles
+            if (!reduce) outgoing.pause();
+        }, 480);
+
+        reel.idx = nextIdx;
+        reel.el.classList.toggle("is-flipped", nextIdx === 1);
+        reel.nav.setAttribute("aria-label", LABEL[nextIdx]);
+    };
+
+    reels.forEach(reel => {
+        /* hover / focus on the arrow pre-arms the hidden film —
+           by click time it is usually already buffered */
+        const preArm = () => armVideo(peekNext(reel));
+        reel.nav.addEventListener("mouseenter", preArm);
+        reel.nav.addEventListener("focus", preArm);
+        reel.nav.addEventListener("click", () => go(reel, 1 - reel.idx));
+    });
+
+    /* arm only the two currently-visible side films */
+    const armActives = () => {
+        if (!mqDesktop.matches) return;     // mobile never downloads them
+        reels.forEach(reel => armVideo(reel.slides[reel.idx]));
+    };
+
+    const playActives = () => reels.forEach(playActive);
 
     /* =====================================================
        VISIBILITY — pause everything when far off-screen
@@ -101,25 +154,25 @@
         };
         if (v.readyState >= 1) frame();
         else v.addEventListener("loadedmetadata", frame, { once: true });
-        if (mqDesktop.matches) armSides();     // side fragments become static frames too
+        armActives();       // the two visible side films become static frames too
         return;
     }
 
     const wake = () => {
         v.play().catch(() => { /* blocked — fine */ });
-        if (mqDesktop.matches) playSides();
+        if (mqDesktop.matches) playActives();
     };
     const sleep = () => {
         v.pause();
-        pauseSides();
+        reels.forEach(pauseAll);
     };
 
     mqDesktop.addEventListener ? mqDesktop.addEventListener("change", e => {
         if (e.matches) {
-            armSides();
+            armActives();
             if (visible) wake();
         } else {
-            sleep();               // switched to mobile: stop all side decode
+            sleep();        // switched to mobile: stop all side decode
         }
     }) : mqDesktop.addListener(e => e.matches ? wake() : sleep());
 
@@ -128,7 +181,7 @@
             entries.forEach(e => {
                 visible = e.isIntersecting;
                 if (visible) {
-                    armSides();    // near the viewport → now it may load
+                    armActives();   // near the viewport → the two active reels may load
                     wake();
                 } else {
                     sleep();

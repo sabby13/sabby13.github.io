@@ -1,14 +1,14 @@
 /* =====================================================
-   LET'S CONNECT — "five vertical moving memories"
-   DESKTOP: a full-width, full-height collage of five
-   portrait films side by side — connect.mp4 centre stage
-   carrying the UI, two wider supporting fragments beside
-   it, two narrow cropped fragments entering from the
-   viewport edges. Like a moving photographic contact
-   sheet. Side films load/play only near the viewport.
-   MOBILE: keep the proven design — connect.mp4 alone as
-   the full-screen portrait background (side films are
-   never rendered or downloaded).
+   LET'S CONNECT — "three panels, hidden second memories"
+   DESKTOP: c-1 | connect | c1 fill the full width, edge to
+   edge. The centre connect.mp4 carries the UI and never
+   moves. Each side panel is a two-memory reel (c-1/c-2 and
+   c1/c2): a subtle glass arrow near the lower edge slides
+   to the hidden film and back, reel-style. Side films arm
+   lazily — only active panels decode.
+   MOBILE: the proven design — connect.mp4 alone as the
+   full-screen portrait background (reels never render or
+   download).
    ===================================================== */
 
 .connect-hero{
@@ -39,10 +39,14 @@
     object-position:center;
 }
 
-/* side fragments: mobile never renders or downloads them */
-.connect-hero__video--side{
+/* side reels: mobile never renders or downloads them */
+.connect-reel{
     display:none;
-    opacity:0;                 /* faded in once actually playing */
+}
+
+/* the reel's film fades in once actually playing */
+.connect-hero__video--side{
+    opacity:0;
     transition:opacity .9s var(--ease);
 }
 
@@ -203,35 +207,122 @@
     to  { opacity:1; transform:none; }
 }
 
-/* ---- desktop: the five-panel collage ----
-   12 / 21 / 34 / 21 / 12 — narrow cropped fragments at the
-   viewport edges, wider supports beside the centre, and the
-   functional connect.mp4 panel whose ratio (~0.54 at full
-   height) almost exactly matches the 9:16 film, so the
-   centrepiece shows ~97% of its frame with no upscaling.
-   Strips sit flush: no gutters, borders, radii or shadows. */
+/* ---- desktop: three panels, two of them reels ----
+   27 / 46 / 27 — the connect.mp4 centrepiece dominates and its
+   panel ratio still sits inside the 9:16 film's native resolution;
+   the side panels stay large enough to appreciate. c-2 and c2 wait
+   hidden behind their reels (c-1 / c1) as second memories,
+   discoverable through the subtle lower arrow. Strips touch
+   edge-to-edge with a 1px paper separation. */
 @media (min-width:641px){
 
     .connect-hero__media{
         display:grid;
-        grid-template-columns:12fr 21fr 34fr 21fr 12fr;
+        grid-template-columns:27fr 46fr 27fr;
         align-items:stretch;
     }
 
-    /* every panel is a grid cell of the full stage */
-    .connect-hero__video{
+    /* the centrepiece is a grid child — never moves */
+    .connect-hero__video:not(.connect-hero__video--side){
         position:relative;
         inset:auto;
         width:100%;
         height:100%;
-        object-fit:cover;
+    }
+
+    /* ---- a side reel: two stacked memories, one visible ---- */
+    .connect-reel{
+        display:block;
+        position:relative;
+        overflow:hidden;
+    }
+
+    .connect-reel--left{ border-right:1px solid rgba(245,241,230,.35); }
+    .connect-reel--right{ border-left:1px solid rgba(245,241,230,.35); }
+
+    .connect-reel__track{
+        display:flex;
+        height:100%;
+        transition:transform .45s var(--ease);
+    }
+
+    .connect-reel__slide{
+        position:relative;
+        flex:0 0 100%;
+        height:100%;
+    }
+
+    /* each film fills its own slide (cover, never stretched) */
+    .connect-hero__video--side{
+        display:block;
         object-position:center;
     }
 
-    .connect-hero__video--side{ display:block; }
+    /* ---- the reel arrow: discoverable, never shouting ----
+       hidden until the panel (or the control itself) is hovered /
+       focused; on touch devices it rests at a quiet half-presence. */
+    .connect-reel__nav{
+        position:absolute;
+        left:50%;
+        bottom:clamp(48px, 9vh, 96px);
+        transform:translateX(-50%);
+        z-index:3;
+        width:46px;
+        height:46px;
+        padding:0;
+        border:none;
+        border-radius:50%;
+        background:rgba(255,255,255,.22);
+        -webkit-backdrop-filter:blur(9px) saturate(1.15);
+        backdrop-filter:blur(9px) saturate(1.15);
+        cursor:pointer;
+        opacity:0;
+        pointer-events:none;         /* invisible = unclickable */
+        transition:opacity .3s var(--ease), background .25s var(--ease);
+    }
 
-    /* retune a panel's crop here if a fragment needs re-framing
-    .connect-hero__video:nth-child(1){ object-position:30% center; } */
+    .connect-reel:hover .connect-reel__nav,
+    .connect-reel__nav:focus-visible{
+        opacity:1;
+        pointer-events:auto;
+    }
+
+    .connect-reel__nav:hover{ background:rgba(255,255,255,.36); }
+
+    .connect-reel__nav:focus-visible{
+        outline:2px dashed rgba(251,247,234,.7);
+        outline-offset:3px;
+    }
+
+    .connect-reel__a{
+        position:absolute;
+        width:20px;
+        height:20px;
+        fill:none;
+        stroke:#FBF7EA;
+        stroke-width:1.8;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+        transition:opacity .2s ease;
+    }
+
+    /* left reel rests on ← (to the second memory), flips to → */
+    .connect-reel--left .connect-reel__a--r,
+    .connect-reel--left.is-flipped .connect-reel__a--l{ opacity:0; }
+    .connect-reel--left.is-flipped .connect-reel__a--r{ opacity:1; }
+
+    /* right reel is the mirror: rests on →, flips to ← */
+    .connect-reel--right .connect-reel__a--l,
+    .connect-reel--right.is-flipped .connect-reel__a--r{ opacity:0; }
+    .connect-reel--right.is-flipped .connect-reel__a--l{ opacity:1; }
+
+    /* touch devices: no hover — the arrows rest unobtrusively visible */
+    @media (hover:none){
+        .connect-reel__nav{
+            opacity:.55;
+            pointer-events:auto;
+        }
+    }
 
 }
 
@@ -286,7 +377,9 @@
     }
     .connect-pill,
     .connect-pill__arrow,
-    .connect-hero__video--side{
+    .connect-hero__video--side,
+    .connect-reel__track,
+    .connect-reel__nav{
         transition:none;
     }
 }

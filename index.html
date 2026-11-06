@@ -33,7 +33,7 @@
     <link rel="stylesheet" href="css/main.css?v=5">
     <link rel="stylesheet" href="css/hero.css?v=6">
     <link rel="stylesheet" href="css/about.css?v=8">
-    <link rel="stylesheet" href="css/contact.css?v=4">
+    <link rel="stylesheet" href="css/contact.css?v=5">
     <link rel="stylesheet" href="css/skills.css?v=2">
     <link rel="stylesheet" href="css/resume.css?v=2">
 
@@ -1048,32 +1048,60 @@
 
     <section id="socials" class="connect-hero" aria-label="Let's connect — contact links">
 
-        <!-- five vertical moving memories: one full-width collage.
-             connect.mp4 (centre) carries the UI; the four side
-             fragments load/play only near the viewport (connect.js)
-             and are desktop-only. -->
+        <!-- three primary panels: two side "memory reels" + the
+             connect.mp4 centrepiece carrying the UI. Each side reel
+             hides a second film (c-2 / c2) reachable through the
+             subtle lower arrow; back reels arm lazily on hover and
+             only the active film decodes. Side reels are
+             desktop-only — mobile keeps connect.mp4 alone. -->
         <div class="connect-hero__media">
-            <video class="connect-hero__video connect-hero__video--side" data-src-side="assets/c-2.mp4"
-                   muted loop playsinline preload="none"
-                   aria-hidden="true" tabindex="-1"
-                   disablepictureinpicture disableremoteplayback></video>
-            <video class="connect-hero__video connect-hero__video--side" data-src-side="assets/c-1.mp4"
-                   muted loop playsinline preload="none"
-                   aria-hidden="true" tabindex="-1"
-                   disablepictureinpicture disableremoteplayback></video>
+            <div class="connect-reel connect-reel--left">
+                <div class="connect-reel__track">
+                    <div class="connect-reel__slide">
+                        <video class="connect-hero__video connect-hero__video--side" data-src-side="assets/c-1.mp4"
+                               muted loop playsinline preload="none"
+                               aria-hidden="true" tabindex="-1"
+                               disablepictureinpicture disableremoteplayback></video>
+                    </div>
+                    <div class="connect-reel__slide">
+                        <video class="connect-hero__video connect-hero__video--side" data-src-side="assets/c-2.mp4"
+                               muted loop playsinline preload="none"
+                               aria-hidden="true" tabindex="-1"
+                               disablepictureinpicture disableremoteplayback></video>
+                    </div>
+                </div>
+                <button class="connect-reel__nav" type="button" aria-label="Show the next memory clip">
+                    <svg class="connect-reel__a connect-reel__a--l" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4m7-7l-7 7 7 7"/></svg>
+                    <svg class="connect-reel__a connect-reel__a--r" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-7-7l7 7-7 7"/></svg>
+                </button>
+            </div>
+
             <video class="connect-hero__video" autoplay muted loop playsinline
                    aria-hidden="true" tabindex="-1"
                    disablepictureinpicture disableremoteplayback>
                 <source src="assets/connect.mp4" type="video/mp4">
             </video>
-            <video class="connect-hero__video connect-hero__video--side" data-src-side="assets/c1.mp4"
-                   muted loop playsinline preload="none"
-                   aria-hidden="true" tabindex="-1"
-                   disablepictureinpicture disableremoteplayback></video>
-            <video class="connect-hero__video connect-hero__video--side" data-src-side="assets/c2.mp4"
-                   muted loop playsinline preload="none"
-                   aria-hidden="true" tabindex="-1"
-                   disablepictureinpicture disableremoteplayback></video>
+
+            <div class="connect-reel connect-reel--right">
+                <div class="connect-reel__track">
+                    <div class="connect-reel__slide">
+                        <video class="connect-hero__video connect-hero__video--side" data-src-side="assets/c1.mp4"
+                               muted loop playsinline preload="none"
+                               aria-hidden="true" tabindex="-1"
+                               disablepictureinpicture disableremoteplayback></video>
+                    </div>
+                    <div class="connect-reel__slide">
+                        <video class="connect-hero__video connect-hero__video--side" data-src-side="assets/c2.mp4"
+                               muted loop playsinline preload="none"
+                               aria-hidden="true" tabindex="-1"
+                               disablepictureinpicture disableremoteplayback></video>
+                    </div>
+                </div>
+                <button class="connect-reel__nav" type="button" aria-label="Show the next memory clip">
+                    <svg class="connect-reel__a connect-reel__a--l" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4m7-7l-7 7 7 7"/></svg>
+                    <svg class="connect-reel__a connect-reel__a--r" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-7-7l7 7-7 7"/></svg>
+                </button>
+            </div>
         </div>
         <div class="connect-hero__veil" aria-hidden="true"></div>
 
@@ -1133,8 +1161,8 @@
     <!-- Resume: punch-card reader scan (one-shot, reduced-motion aware) -->
     <script src="js/resume.js?v=1"></script>
 
-    <!-- Let's Connect: five-panel film collage (near-viewport loading, reduced motion) -->
-    <script src="js/connect.js?v=9"></script>
+    <!-- Let's Connect: three-panel reel composition (lazy side films, reduced motion) -->
+    <script src="js/connect.js?v=10"></script>
 
     <!-- Hero: multilingual greetings + Typegarden garden (adapted from hmm.html) -->
     <script src="js/hero.js?v=7"></script>
