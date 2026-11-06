@@ -7,6 +7,12 @@
    no video rectangle shows.
    ===================================================== */
 
+/* ---- the section sits on pure white ---- */
+
+#about{
+    background:#ffffff;   /* overrides the cream --paper from .section */
+}
+
 .about-wrap{
     max-width:min(1150px, 96vw);
     margin-inline:auto;
