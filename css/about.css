@@ -59,7 +59,7 @@
    of the card at every size and hangs past the boundary */
 .about-card__signature{
     position:absolute;
-    right:-4%;
+    right:16%;
     bottom:-18%;
     width:30%;
     height:auto;              /* original aspect ratio, never distorted */
