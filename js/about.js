@@ -44,3 +44,36 @@
     }
 
 })();
+
+
+/* -----------------------------------------------------
+   Signature entrance — one-shot "pen-drawn" reveal.
+   The PNG is masked (soft feathered front sweeping left to
+   right, so it reads as ink appearing under a pen). Armed
+   only when JS runs — without JS / with reduced motion the
+   signature is simply visible (fails open). Fired once by
+   IntersectionObserver when the CARD is meaningfully
+   visible, after a short beat, and never replayed.
+   ----------------------------------------------------- */
+
+(function () {
+
+    const sig  = document.querySelector(".about-card__signature");
+    const card = document.querySelector(".about-card");
+    if (!sig || !card) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!("IntersectionObserver" in window)) return;
+
+    sig.classList.add("sig-armed");
+
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            io.disconnect();                       /* once per page load */
+            setTimeout(() => sig.classList.add("sig-draw"), 400);
+        });
+    }, { threshold: 0.5 });
+
+    io.observe(card);
+
+})();
