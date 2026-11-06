@@ -1,14 +1,13 @@
-/* NOTE: hero.css is linked directly from index.html (not @imported here)
-   so its cache key can be versioned independently and so the hero can
-   never silently lose its stylesheet. */
+/* NOTE: stylesheets for sections that get redesigned independently are
+   linked DIRECTLY from index.html (not @imported here) so their cache
+   key can be versioned on each change — hero.css, about.css, contact.css.
+   Unversioned @import URLs let browsers/CDNs keep serving a stale copy. */
 @import url("navigation.css");
 @import url("sections.css");
-@import url("about.css");
 @import url("projects.css");
 @import url("resume.css");
 @import url("skills.css");
 @import url("research.css");
-@import url("contact.css");
 @import url("animation.css");
 
 /* =====================================================
