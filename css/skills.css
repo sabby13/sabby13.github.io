@@ -89,6 +89,7 @@
 /* ---- relationships ---- */
 
 .edge{
+    fill:none;                /* paths must never fill their chord */
     stroke:rgba(22,37,92,.3);
     stroke-width:1;
     stroke-dasharray:1;
@@ -108,7 +109,7 @@
     transition:opacity .35s ease;
 }
 
-.star__hit{ fill:transparent; }      /* fat invisible hit area */
+.star__hit{ fill:transparent; }
 
 .star__dot{
     fill:var(--navy);
@@ -122,12 +123,100 @@
     transition:stroke .3s ease;
 }
 
-.star__label{
-    font-family:var(--font-body);
-    font-weight:500;
-    fill:rgba(22,37,92,.92);
+/* open (outlined) body — "verified position" circle */
+.star__dot--open{
+    fill:none;
+    stroke:var(--navy);
+    stroke-width:1.3;
+    transition:stroke .3s ease;
+}
+
+/* dashed container-ring (Docker) */
+.star__dashring{
+    fill:none;
+    stroke:rgba(22,37,92,.55);
+    stroke-width:1;
+    stroke-dasharray:2.2 2.6;
+    transition:stroke .3s ease;
+}
+
+.star__ring2{
+    fill:none;
+    stroke:rgba(22,37,92,.3);
+    stroke-width:1;
+    transition:stroke .3s ease;
+}
+
+/* starbursts (4-point) */
+.star__burst{
+    fill:var(--navy);
     transition:fill .3s ease;
 }
+
+/* cross / variable-star marks */
+.star__mark line{
+    stroke:var(--navy);
+    stroke-width:1.1;
+    transition:stroke .3s ease;
+}
+
+/* reference-star direction ticks */
+.star__reftick{
+    stroke:rgba(22,37,92,.45);
+    stroke-width:1;
+}
+
+.star__label{
+    font-family:var(--font-body);
+    font-weight:400;
+    fill:rgba(22,37,92,.85);
+    transition:fill .3s ease;
+}
+
+.star--major .star__label,
+.star--burst .star__label,
+.star--dashring .star__label{ font-weight:500; }
+
+/* anchors get the site's editorial serif — the plate's
+   named major stars */
+.star__label--anchor{
+    font-family:"Playfair Display", Georgia, serif;
+    font-weight:700;
+    letter-spacing:.02em;
+    fill:var(--navy);
+}
+
+/* orbital arcs — dotted, truthful: a hub's satellites
+   really do lie (almost) on this circle */
+.orbit-arc{
+    fill:none;
+    stroke:rgba(22,37,92,.4);
+    stroke-width:1;
+    stroke-dasharray:1 7;
+    stroke-linecap:round;
+    transition:opacity 1s ease .9s;
+}
+
+/* editorial + coordinate annotations */
+.chart__note{
+    font-family:var(--font-body);
+    font-style:italic;
+    font-size:10.5px;
+    fill:rgba(63,91,150,.72);
+    transition:opacity 1s ease 1.2s;
+}
+
+.chart__coord{
+    font-family:var(--font-pixel);
+    font-size:9px;
+    letter-spacing:.08em;
+    fill:rgba(22,37,92,.5);
+    transition:opacity 1s ease 1.2s;
+}
+
+html.js .chart-wrap:not(.is-set) .orbit-arc,
+html.js .chart-wrap:not(.is-set) .chart__note,
+html.js .chart-wrap:not(.is-set) .chart__coord{ opacity:0; }
 
 /* ---- entrance: one-shot "the plate is being drawn" ----
    Armed only under html.js (fails open without JS). Stars
@@ -149,14 +238,29 @@ html.js .chart-wrap:not(.is-set) .edge{ stroke-dashoffset:1; }
 
 .chart.has-focus .star:not(.is-focus):not(.is-linked){ opacity:.22; }
 .chart.has-focus .edge:not(.is-lit){ opacity:.06; }
+.chart.has-focus .orbit-arc:not(.is-lit){ opacity:.12; }
 
 .star.is-focus .star__dot,
 .star.is-linked .star__dot{ fill:var(--cobalt); }
 
-.star.is-focus .star__ring{ stroke:var(--cobalt); }
+.star.is-focus .star__dot--open,
+.star.is-linked .star__dot--open{ fill:none; stroke:var(--cobalt); }
+
+.star.is-focus .star__ring,
+.star.is-linked .star__ring,
+.star.is-focus .star__ring2,
+.star.is-linked .star__ring2,
+.star.is-focus .star__dashring,
+.star.is-linked .star__dashring{ stroke:var(--cobalt); }
+
+.star.is-focus .star__burst,
+.star.is-linked .star__burst{ fill:var(--cobalt); }
+
+.star.is-focus .star__mark line,
+.star.is-linked .star__mark line{ stroke:var(--cobalt); }
 
 .star.is-focus .star__label,
-.star.is-linked .star__label{ fill:var(--cobalt); font-weight:600; }
+.star.is-linked .star__label{ fill:var(--cobalt); }
 
 .edge.is-lit{
     stroke:var(--cobalt);
@@ -224,6 +328,14 @@ html.js .chart-wrap:not(.is-set) .edge{ stroke-dashoffset:1; }
     .edge,
     .star,
     .star__dot,
+    .star__dot--open,
+    .star__dashring,
     .star__ring,
-    .star__label{ transition:none; }
+    .star__ring2,
+    .star__burst,
+    .star__mark line,
+    .star__label,
+    .orbit-arc,
+    .chart__note,
+    .chart__coord{ transition:none; }
 }
