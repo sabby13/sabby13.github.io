@@ -19,14 +19,25 @@
     background:#080808;
 }
 
-/* the title lives on black now: near-white ink, and the
-   cap's cream drop-shadow becomes a faint printed halo */
-#skills .section-title{
+/* the heading — the same editorial serif system as the About
+   heading (Playfair Display 700, identical size / leading /
+   tracking, not uppercase), set in off-white for the night
+   sky. Position + vertical rhythm unchanged. */
+.skills-title{
+    font-family:"Playfair Display",Georgia,serif;
+    font-weight:700;
+    font-size:clamp(44px, 7vw, 92px);
+    line-height:1.05;
+    letter-spacing:-.015em;
     color:#F7F6F1;
+    margin-bottom:clamp(40px, 6vw, 72px);   /* unchanged section rhythm */
 }
 
-#skills .section-title__cap{
-    text-shadow:0 6px 18px rgba(245,243,236,.1);
+/* mirror the About heading's responsive step */
+@media (max-width:640px){
+    .skills-title{
+        font-size:clamp(38px, 11vw, 54px);
+    }
 }
 
 .chart-wrap{
